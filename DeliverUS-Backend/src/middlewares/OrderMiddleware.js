@@ -4,12 +4,13 @@ import { Order, Restaurant } from '../models/models.js'
 const checkOrderCustomer = async (req, res, next) => {
   try {
     const order = await Order.findByPk(req.params.orderId)
-    if (order.userId === req.user.id) {
+    if (req.user.id === order.userId) {
       return next()
+    } else {
+      return res.status(403).send('Not enough privileges. This entity does not belong to you')
     }
-    return res.status(403).send('You do not have permission to access this order')
-  } catch (error) {
-    return res.status(500).send(error)
+  } catch (err) {
+    return res.status(500).send(err)
   }
 }
 
