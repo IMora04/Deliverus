@@ -2,9 +2,9 @@ import OrderController from '../controllers/OrderController.js'
 import { hasRole, isLoggedIn } from '../middlewares/AuthMiddleware.js'
 import { checkEntityExists } from '../middlewares/EntityMiddleware.js'
 import * as OrderMiddleware from '../middlewares/OrderMiddleware.js'
-import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
 import { Order } from '../models/models.js'
-import OrderValidation from '../../controllers/validation'
+import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
+import * as OrderValidation from '../controllers/validation/OrderValidation.js'
 
 const loadFileRoutes = function (app) {
   // TODO: Include routes for:
