@@ -2,6 +2,7 @@
 import { Order, Product, Restaurant, User, sequelizeSession } from '../models/models.js'
 import moment from 'moment'
 import { Op } from 'sequelize'
+
 const generateFilterWhereClauses = function (req) {
   const filterWhereClauses = []
   if (req.query.status) {
@@ -117,9 +118,51 @@ const indexCustomer = async function (req, res) {
 // 3. In order to save the order and related products, start a transaction, store the order, store each product linea and commit the transaction
 // 4. If an exception is raised, catch it and rollback the transaction
 
+/*
+    price = sum of unitPrice*units, per product
+    shippingCosts = price>10 ? 0:restaurantShippingCosts
+*/
+// const getShippingCosts = async (price, restaurantId) => {
+//   if (price > 10) {
+//     return 0
+//   } else {
+//     const restaurant = await Restaurant.findByPk(restaurantId)
+//     return 102
+//   }
+// }
+
+// const getPrice = (products) => {
+//   let priceAcum = 0
+//   for (let i = 0; i < products.length; i++) {
+//     priceAcum += products[i].unityPrice * products[i].quantity
+//   }
+//   return 101
+// }
+
 const create = async (req, res) => {
-  // Use sequelizeSession to start a transaction
-  res.status(500).send('This function is to be implemented')
+  const t = await sequelizeSession.transaction()
+  try {
+    const priceOrder = '101'
+    let newOrder = await Order.create({
+      address: req.body.address,
+      restaurantId: req.body.restaurantId,
+      userId: req.user.id,
+      shippingCosts: '101',
+      price: priceOrder
+    }, { transaction: t })
+    newOrder = await newOrder.save({ transaction: t })
+    const allProducts = req.body.products
+    for (let i = 0; i < allProducts.length; i++) {
+      const productInfo = allProducts[i]
+      const productToAdd = await Product.findByPk(productInfo.productId)
+      await newOrder.addProduct(productToAdd, { through: { productId: productInfo.productId, quantity: productInfo.quantity, unityPrice: productToAdd.price }, transaction: t })
+    }
+    await t.commit(newOrder)
+    res.json(newOrder)
+  } catch (err) {
+    await t.rollback()
+    res.status(500).send(err)
+  }
 }
 
 // TODO: Implement the update function that receives a modified order and persists it in the database.
