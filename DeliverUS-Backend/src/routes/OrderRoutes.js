@@ -2,7 +2,9 @@ import OrderController from '../controllers/OrderController.js'
 import { hasRole, isLoggedIn } from '../middlewares/AuthMiddleware.js'
 import { checkEntityExists } from '../middlewares/EntityMiddleware.js'
 import * as OrderMiddleware from '../middlewares/OrderMiddleware.js'
+import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
 import { Order } from '../models/models.js'
+import OrderValidation from '../../controllers/validation'
 
 const loadFileRoutes = function (app) {
   // TODO: Include routes for:
@@ -15,6 +17,15 @@ const loadFileRoutes = function (app) {
       OrderController.indexCustomer)
 
   // 2. Creating a new order (only customers can create new orders)
+
+  app.route('/orders')
+    .post(
+      isLoggedIn,
+      hasRole('customer'),
+      OrderValidation.create,
+      handleValidation,
+      OrderController.create
+    )
 
   app.route('/orders/:orderId/confirm')
     .patch(
