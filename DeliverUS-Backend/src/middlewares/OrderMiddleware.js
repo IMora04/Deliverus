@@ -3,14 +3,12 @@ import { Order, Restaurant } from '../models/models.js'
 // TODO: Implement the following function to check if the order belongs to current loggedIn customer (order.userId equals or not to req.user.id)
 const checkOrderCustomer = async (req, res, next) => {
   try {
-    const orderId = req.params.orderId
-    const order = await Order.findByPk(orderId)
-    if (order.userId.toString() === req.user.id.toString()) {
+    const order = await Order.findByPk(req.params.orderId)
+    if (order.userId === req.user.id) {
       return next()
     }
     return res.status(403).send('You do not have permission to access this order')
   } catch (error) {
-    console.error('Error in checkOrderCustomer middleware:', error)
     return res.status(500).send(error)
   }
 }
