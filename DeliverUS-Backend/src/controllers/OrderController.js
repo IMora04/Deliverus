@@ -111,51 +111,51 @@ const indexCustomer = async function (req, res) {
   }
 }
 
-// TODO: Implement the create function that receives a new order and stores it in the database.
-// Take into account that:
-// 1. If price is greater than 10€, shipping costs have to be 0.
-// 2. If price is less or equals to 10€, shipping costs have to be restaurant default shipping costs and have to be added to the order total price
-// 3. In order to save the order and related products, start a transaction, store the order, store each product linea and commit the transaction
-// 4. If an exception is raised, catch it and rollback the transaction
+const getShippingCosts = async (price, restaurantId) => {
+  if (price > 10) {
+    return 0
+  } else {
+    const restaurant = await Restaurant.findByPk(restaurantId)
+    return restaurant.shippingCosts
+  }
+}
 
-/*
-    price = sum of unitPrice*units, per product
-    shippingCosts = price>10 ? 0:restaurantShippingCosts
-*/
-// const getShippingCosts = async (price, restaurantId) => {
-//   if (price > 10) {
-//     return 0
-//   } else {
-//     const restaurant = await Restaurant.findByPk(restaurantId)
-//     return 102
-//   }
-// }
-
-// const getPrice = (products) => {
-//   let priceAcum = 0
-//   for (let i = 0; i < products.length; i++) {
-//     priceAcum += products[i].unityPrice * products[i].quantity
-//   }
-//   return 101
-// }
+const getPrice = async (products) => {
+  let priceAcum = 0
+  for (let i = 0; i < products.length; i++) {
+    const product = products[i]
+    let productUnityPrice = await Product.findByPk(product.productId)
+    productUnityPrice = productUnityPrice.price
+    priceAcum += productUnityPrice * products[i].quantity
+  }
+  return priceAcum
+}
 
 const create = async (req, res) => {
   const t = await sequelizeSession.transaction()
   try {
-    const priceOrder = '101'
+    const orderPrice = await getPrice(req.body.products)
+    const orderShippingCosts = await getShippingCosts(orderPrice, req.body.restaurantId)
     let newOrder = await Order.create({
       address: req.body.address,
       restaurantId: req.body.restaurantId,
       userId: req.user.id,
-      shippingCosts: '101',
-      price: priceOrder
+      shippingCosts: orderShippingCosts,
+      price: orderPrice
     }, { transaction: t })
     newOrder = await newOrder.save({ transaction: t })
-    const allProducts = req.body.products
-    for (let i = 0; i < allProducts.length; i++) {
-      const productInfo = allProducts[i]
-      const productToAdd = await Product.findByPk(productInfo.productId)
-      await newOrder.addProduct(productToAdd, { through: { productId: productInfo.productId, quantity: productInfo.quantity, unityPrice: productToAdd.price }, transaction: t })
+    const productsArray = req.body.products
+    for (let i = 0; i < productsArray.length; i++) {
+      const orderProductInfo = productsArray[i]
+      const productToAdd = await Product.findByPk(orderProductInfo.productId)
+      await newOrder.addProduct(productToAdd, {
+        through: {
+          productId: orderProductInfo.productId,
+          quantity: orderProductInfo.quantity,
+          unityPrice: productToAdd.price
+        },
+        transaction: t
+      })
     }
     await t.commit(newOrder)
     res.json(newOrder)
