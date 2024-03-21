@@ -20,7 +20,7 @@ const checkRestaurantExists = async (req, res, next) => {
     const restaurantId = req.params.restaurantId
     const restaurant = await Restaurant.findByPk(restaurantId)
     if (!restaurant) {
-      return res.status(404).send('Not found')
+      return res.status(409).send('Restaurant not found')
     }
     return next()
   } catch (err) {
