@@ -48,4 +48,4 @@ const update = [
   check('restaurantId').not().exists()
 ]
 
-export { create, update }
+export { create, update, checkRestaurantExists }

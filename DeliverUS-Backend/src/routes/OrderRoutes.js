@@ -3,8 +3,8 @@ import { hasRole, isLoggedIn } from '../middlewares/AuthMiddleware.js'
 import { checkEntityExists } from '../middlewares/EntityMiddleware.js'
 import * as OrderMiddleware from '../middlewares/OrderMiddleware.js'
 import { Order } from '../models/models.js'
-// import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
-// import * as OrderValidation from '../controllers/validation/OrderValidation.js'
+import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
+import { create } from '../controllers/validation/OrderValidation.js'
 
 const loadFileRoutes = function (app) {
   // TODO: Include routes for:
@@ -19,8 +19,8 @@ const loadFileRoutes = function (app) {
     .post(
       isLoggedIn,
       hasRole('customer'),
-      // OrderValidation.create,
-      // handleValidation,
+      create,
+      handleValidation,
       OrderController.create)
 
   app.route('/orders/:orderId/confirm')
