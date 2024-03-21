@@ -171,9 +171,38 @@ const create = async (req, res) => {
 // 2. If price is less or equals to 10€, shipping costs have to be restaurant default shipping costs and have to be added to the order total price
 // 3. In order to save the updated order and updated products, start a transaction, update the order, remove the old related OrderProducts and store the new product lines, and commit the transaction
 // 4. If an exception is raised, catch it and rollback the transaction
+
 const update = async function (req, res) {
-  // Use sequelizeSession to start a transaction
-  res.status(500).send('This function is to be implemented')
+  const t = await sequelizeSession.transaction()
+  try {
+    const newOrderPrice = await getPrice(req.body.products)
+    const newShippingCosts = await getShippingCosts(newOrderPrice, req.body.restaurantId)
+    let updatedOrder = await Order.update({
+      address: req.body.address,
+      shippingCosts: newShippingCosts,
+      price: newOrderPrice + newShippingCosts
+    }, { transaction: t })
+    updatedOrder = await Order.findByPk(req.params.orderId)
+    await updatedOrder.setProducts([], { transaction: t })
+    const productsArray = req.body.products
+    for (let i = 0; i < productsArray.length; i++) {
+      const orderProductInfo = productsArray[i]
+      const productToAdd = await Product.findByPk(orderProductInfo.productId)
+      await updatedOrder.addProduct(productToAdd, {
+        through: {
+          productId: orderProductInfo.productId,
+          quantity: orderProductInfo.quantity,
+          unityPrice: productToAdd.price
+        },
+        transaction: t
+      })
+    }
+    await t.commit(updatedOrder)
+    res.json(updatedOrder)
+  } catch (err) {
+    await t.rollback()
+    res.status(500).send(err)
+  }
 }
 
 // TODO: Implement the destroy function that receives an orderId as path param and removes the associated order from the database.
