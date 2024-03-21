@@ -42,7 +42,13 @@ const create = [
   check('products.*.productId').exists().isInt({ min: 1 }).toInt(),
   check('products.*').custom(checkProductIsAvailable),
   check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
-  check('products').custom(checkAllProdSameRest)
+  check('products').custom(checkAllProdSameRest),
+  check('userId').optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
+  check('startedAt').optional({ nullable: true, checkFalsy: true }).isDate().toDate(),
+  check('deliveredAt').optional({ nullable: true, checkFalsy: true }).isDate().toDate(),
+  check('price').not().exists(),
+  check('address').optional({ nullable: true, checkFalsy: true }).isString().toString(),
+  check('shippingCosts').not().exists()
 ]
 
 // TODO: Include validation rules for update that should:
