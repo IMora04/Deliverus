@@ -67,7 +67,8 @@ const update = [
   check('restaurantId').not().exists(),
   check('products').exists().isArray().notEmpty(),
   check('products.*.productId').exists().isInt({ min: 1 }).toInt(),
-  check('products.*').custom(checkProductIsAvailable),
+  check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
+  check('products').custom(checkProductIsAvailable),
   check('status').equals('pending')
 ]
 
