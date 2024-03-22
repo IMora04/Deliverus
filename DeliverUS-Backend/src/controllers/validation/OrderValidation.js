@@ -48,7 +48,8 @@ const checkAllProdPreviousRest = async (value, { req }) => {
     const newProducts = req.body.products
     for (let i = 0; i < newProducts.length; i++) {
       const productInfo = newProducts[i]
-      if (productInfo.restaurantId !== previousRestaurantId) {
+      const productToCheck = await Product.findByPk(productInfo.productId)
+      if (productToCheck.restaurantId !== previousRestaurantId) {
         return Promise.reject(new Error('Not all products belong to the restaurant of the order'))
       }
     }
@@ -63,14 +64,12 @@ const create = [
   check('restaurantId').custom(checkRestaurantExists),
   check('products').exists().isArray().notEmpty(),
   check('products.*.productId').exists().isInt({ min: 1 }).toInt(),
-
   check('products').custom(checkProductIsAvailable),
   check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
   check('products').custom(checkAllProdSameRest),
-
+  check('address').exists(),
   check('userId').not().exists(),
   check('price').not().exists(),
-  check('address').optional({ nullable: true, checkFalsy: true }).isString(),
   check('shippingCosts').not().exists()
 ]
 
@@ -87,7 +86,7 @@ const update = [
   check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
   check('products').custom(checkProductIsAvailable),
   check('products').custom(checkAllProdPreviousRest),
-  check('status').equals('pending')
+  check('address').exists()
 ]
 
 export { create, update }
