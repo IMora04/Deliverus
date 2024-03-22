@@ -4,7 +4,7 @@ import { checkEntityExists } from '../middlewares/EntityMiddleware.js'
 import * as OrderMiddleware from '../middlewares/OrderMiddleware.js'
 import { Order } from '../models/models.js'
 import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
-import { create } from '../controllers/validation/OrderValidation.js'
+import * as OrderValidation from '../controllers/validation/OrderValidation.js'
 
 const loadFileRoutes = function (app) {
   // TODO: Include routes for:
@@ -20,7 +20,7 @@ const loadFileRoutes = function (app) {
       isLoggedIn,
       hasRole('customer'),
       OrderMiddleware.checkRestaurantExists,
-      create,
+      OrderValidation.create,
       handleValidation,
       OrderController.create)
 
@@ -65,6 +65,8 @@ const loadFileRoutes = function (app) {
       hasRole('customer'),
       checkEntityExists(Order, 'orderId'),
       OrderMiddleware.checkOrderCustomer,
+      OrderValidation.update,
+      handleValidation,
       OrderController.update
     )
     .delete(
