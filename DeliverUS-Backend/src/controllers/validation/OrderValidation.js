@@ -10,10 +10,15 @@ import { Product /* Restaurant */ } from '../../models/models'
 
 const checkProductIsAvailable = async (value, { req }) => {
   try {
-    const product = await Product.findByPk(req.body.productId)
-    if (product.availability === false) {
-      return Promise.reject(new Error('The product is not available.'))
-    } else { return Promise.resolve() }
+    const productsArray = req.body.products
+    for (let i = 0; i < productsArray.length; i++) {
+      const orderProductInfo = productsArray[i]
+      const productToCheck = await Product.findByPk(orderProductInfo.productId)
+      if (productToCheck.availability === false) {
+        return Promise.reject(new Error('The restaurantId does not exist.'))
+      }
+    }
+    return Promise.resolve()
   } catch (err) {
     return Promise.reject(new Error(err))
   }
@@ -41,7 +46,7 @@ const create = [
   check('products').exists().isArray().notEmpty(),
   check('products.*.productId').exists().isInt({ min: 1 }).toInt(),
 
-  // check('products.*').custom(checkProductIsAvailable)
+  check('products').custom(checkProductIsAvailable),
   check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
   // check('products').custom(checkAllProdSameRest),
 
