@@ -32,6 +32,7 @@ const loadFileRoutes = function (app) {
       OrderMiddleware.checkOrderOwnership,
       OrderMiddleware.checkOrderIsPending,
       OrderController.confirm)
+
   app.route('/orders/:orderId/send')
     .patch(
       isLoggedIn,
@@ -64,6 +65,7 @@ const loadFileRoutes = function (app) {
       isLoggedIn,
       hasRole('customer'),
       checkEntityExists(Order, 'orderId'),
+      OrderMiddleware.checkOrderIsPending,
       OrderMiddleware.checkOrderCustomer,
       OrderValidation.update,
       handleValidation,
@@ -73,6 +75,7 @@ const loadFileRoutes = function (app) {
       isLoggedIn,
       hasRole('customer'),
       checkEntityExists(Order, 'orderId'),
+      OrderMiddleware.checkOrderIsPending,
       OrderMiddleware.checkOrderCustomer,
       OrderController.destroy
     )
