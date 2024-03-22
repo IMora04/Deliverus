@@ -17,7 +17,7 @@ const checkOrderCustomer = async (req, res, next) => {
 // TODO: Implement the following function to check if the restaurant of the order exists
 const checkRestaurantExists = async (req, res, next) => {
   try {
-    const restaurantId = req.params.restaurantId
+    const restaurantId = req.body.restaurantId
     const restaurant = await Restaurant.findByPk(restaurantId)
     if (!restaurant) {
       return res.status(409).send('Restaurant not found')

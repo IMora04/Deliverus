@@ -19,6 +19,7 @@ const loadFileRoutes = function (app) {
     .post(
       isLoggedIn,
       hasRole('customer'),
+      OrderMiddleware.checkRestaurantExists,
       create,
       handleValidation,
       OrderController.create)
