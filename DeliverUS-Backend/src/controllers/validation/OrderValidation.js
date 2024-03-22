@@ -1,6 +1,6 @@
 import { check } from 'express-validator'
 import { checkRestaurantExists } from '../../controllers/validation/ProductValidation'
-import { Product /* Restaurant */ } from '../../models/models'
+import { Product, Order } from '../../models/models'
 
 // TODO: Include validation rules for create that should:
 // 1. Check that restaurantId is present in the body and corresponds to an existing restaurant
@@ -41,6 +41,23 @@ const checkAllProdSameRest = async (value, { req }) => {
   }
 }
 
+const checkAllProdPreviousRest = async (value, { req }) => {
+  try {
+    let previousRestaurantId = await Order.findByPk(req.params.orderId)
+    previousRestaurantId = previousRestaurantId.restaurantId
+    const newProducts = req.body.products
+    for (let i = 0; i < newProducts.length; i++) {
+      const productInfo = newProducts[i]
+      if (productInfo.restaurantId !== previousRestaurantId) {
+        return Promise.reject(new Error('Not all products belong to the restaurant of the order'))
+      }
+    }
+    return Promise.resolve()
+  } catch (err) {
+    return Promise.reject(new Error(err))
+  }
+}
+
 const create = [
   check('restaurantId').exists().isInt({ min: 1 }).toInt(),
   check('restaurantId').custom(checkRestaurantExists),
@@ -69,6 +86,7 @@ const update = [
   check('products.*.productId').exists().isInt({ min: 1 }).toInt(),
   check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
   check('products').custom(checkProductIsAvailable),
+  check('products').custom(checkAllProdPreviousRest),
   check('status').equals('pending')
 ]
 
