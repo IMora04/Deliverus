@@ -112,7 +112,7 @@ const indexCustomer = async function (req, res) {
 }
 
 const getShippingCosts = async (price, restaurantId) => {
-  if (price > 10) {
+  if (price >= 10) {
     return 0
   } else {
     const restaurant = await Restaurant.findByPk(restaurantId)
@@ -136,12 +136,12 @@ const create = async (req, res) => {
   try {
     const orderPrice = await getPrice(req.body.products)
     const orderShippingCosts = await getShippingCosts(orderPrice, req.body.restaurantId)
-    const newOrder = await Order.create({
+    let newOrder = await Order.create({
       address: req.body.address,
       restaurantId: req.body.restaurantId,
       userId: req.user.id,
       shippingCosts: orderShippingCosts,
-      price: orderPrice
+      price: orderPrice + orderShippingCosts
     }, { transaction: t })
     const productsArray = req.body.products
     for (let i = 0; i < productsArray.length; i++) {
@@ -156,7 +156,14 @@ const create = async (req, res) => {
         transaction: t
       })
     }
-    await t.commit(newOrder)
+    newOrder = await newOrder.reload({
+      include: {
+        model: Product,
+        as: 'products'
+      },
+      transaction: t
+    })
+    await t.commit()
     res.json(newOrder)
   } catch (err) {
     await t.rollback()
@@ -176,12 +183,11 @@ const update = async function (req, res) {
   try {
     const newOrderPrice = await getPrice(req.body.products)
     const newShippingCosts = await getShippingCosts(newOrderPrice, req.body.restaurantId)
-    let updatedOrder = await Order.update({
-      address: req.body.address,
-      shippingCosts: newShippingCosts,
-      price: newOrderPrice + newShippingCosts
+    let updatedOrder = await Order.findByPk(req.params.orderId)
+    await updatedOrder.update({
+      price: newOrderPrice + newShippingCosts,
+      shippingCosts: newShippingCosts
     }, { transaction: t })
-    updatedOrder = await Order.findByPk(req.params.orderId)
     await updatedOrder.setProducts([], { transaction: t })
     const productsArray = req.body.products
     for (let i = 0; i < productsArray.length; i++) {
@@ -196,7 +202,14 @@ const update = async function (req, res) {
         transaction: t
       })
     }
-    await t.commit(updatedOrder)
+    updatedOrder = await updatedOrder.reload({
+      include: {
+        model: Product,
+        as: 'products'
+      },
+      transaction: t
+    })
+    await t.commit()
     res.json(updatedOrder)
   } catch (err) {
     await t.rollback()
