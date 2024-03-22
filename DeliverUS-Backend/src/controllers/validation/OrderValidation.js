@@ -24,21 +24,22 @@ const checkProductIsAvailable = async (value, { req }) => {
   }
 }
 
-// const checkAllProdSameRest = async (value, { req }) => {
-//   try {
-//     const restaurant = await Restaurant.findByPk(req.body.restaurantId)
-//     const products = req.body.products
-//     for (let i = 0; i < products.length; i++) {
-//       const product = await Product.findByPk(products[i])
-//       if (!(restaurant.restaurantId === product.restaurantId)) {
-//         return Promise.reject(new Error('Not all products belong to the same restaurant'))
-//       }
-//     }
-//     return Promise.resolve()
-//   } catch (err) {
-//     return Promise.reject(new Error(err))
-//   }
-// }
+const checkAllProdSameRest = async (value, { req }) => {
+  try {
+    const restaurant = req.body.restaurantId
+    const productsArray = req.body.products
+    for (let i = 0; i < productsArray.length; i++) {
+      const orderProductInfo = productsArray[i]
+      const productToCheck = await Product.findByPk(orderProductInfo.productId)
+      if (restaurant !== productToCheck.restaurantId) {
+        return Promise.reject(new Error('Not all products belong to the same restaurant'))
+      }
+    }
+    return Promise.resolve()
+  } catch (err) {
+    return Promise.reject(new Error(err))
+  }
+}
 
 const create = [
   check('restaurantId').exists().isInt({ min: 1 }).toInt(),
@@ -48,7 +49,7 @@ const create = [
 
   check('products').custom(checkProductIsAvailable),
   check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
-  // check('products').custom(checkAllProdSameRest),
+  check('products').custom(checkAllProdSameRest),
 
   check('userId').not().exists(),
   check('price').not().exists(),
