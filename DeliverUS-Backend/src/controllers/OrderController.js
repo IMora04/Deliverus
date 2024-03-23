@@ -85,9 +85,6 @@ const indexRestaurant = async function (req, res) {
   }
 }
 
-// TODO: Implement the indexCustomer function that queries orders from current logged-in customer and send them back.
-// Orders have to include products that belongs to each order and restaurant details
-// sort them by createdAt date, desc.
 const indexCustomer = async function (req, res) {
   try {
     const orders = await Order.findAll(
@@ -169,13 +166,6 @@ const create = async (req, res) => {
   }
 }
 
-// TODO: Implement the update function that receives a modified order and persists it in the database.
-// Take into account that:
-// 1. If price is greater than 10€, shipping costs have to be 0.
-// 2. If price is less or equals to 10€, shipping costs have to be restaurant default shipping costs and have to be added to the order total price
-// 3. In order to save the updated order and updated products, start a transaction, update the order, remove the old related OrderProducts and store the new product lines, and commit the transaction
-// 4. If an exception is raised, catch it and rollback the transaction
-
 const update = async function (req, res) {
   const t = await sequelizeSession.transaction()
   try {
@@ -215,9 +205,6 @@ const update = async function (req, res) {
   }
 }
 
-// TODO: Implement the destroy function that receives an orderId as path param and removes the associated order from the database.
-// Take into account that:
-// 1. The migration include the "ON DELETE CASCADE" directive so OrderProducts related to this order will be automatically removed.
 const destroy = async function (req, res) {
   try {
     const result = await Order.destroy({ where: { id: req.params.orderId } })
