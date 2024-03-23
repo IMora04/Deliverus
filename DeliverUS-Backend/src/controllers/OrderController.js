@@ -182,8 +182,8 @@ const update = async function (req, res) {
   const t = await sequelizeSession.transaction()
   try {
     const newOrderPrice = await getPrice(req.body.products)
-    const newShippingCosts = await getShippingCosts(newOrderPrice, req.body.restaurantId)
     let updatedOrder = await Order.findByPk(req.params.orderId)
+    const newShippingCosts = await getShippingCosts(newOrderPrice, updatedOrder.restaurantId)
     await updatedOrder.update({
       price: newOrderPrice + newShippingCosts,
       shippingCosts: newShippingCosts
