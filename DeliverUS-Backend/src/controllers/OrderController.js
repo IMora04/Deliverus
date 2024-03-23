@@ -136,13 +136,11 @@ const create = async (req, res) => {
   try {
     const orderPrice = await getPrice(req.body.products)
     const orderShippingCosts = await getShippingCosts(orderPrice, req.body.restaurantId)
-    let newOrder = await Order.create({
-      address: req.body.address,
-      restaurantId: req.body.restaurantId,
-      userId: req.user.id,
-      shippingCosts: orderShippingCosts,
-      price: orderPrice + orderShippingCosts
-    }, { transaction: t })
+    let newOrder = await Order.build(req.body, { transaction: t })
+    newOrder.userId = req.user.id
+    newOrder.shippingCosts = orderShippingCosts
+    newOrder.price = orderPrice + orderShippingCosts
+    await newOrder.save({ transaction: t })
     const productsArray = req.body.products
     for (let i = 0; i < productsArray.length; i++) {
       const orderProductInfo = productsArray[i]
