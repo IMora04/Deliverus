@@ -33,13 +33,13 @@ export default function OrdersScreen ({ navigation, route }) {
   const renderOrder = ({ item }) => {
     return (
       <ImageCard
-      imageUri = {item.logo ? { uri: process.env.API_BASE_URL + '/' + item.logo } : restaurantLogo}
+      imageUri = {item.restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + item.restaurant.logo } : restaurantLogo}
       title={item.name}
       onPress={() => {
         navigation.navigate('OrderDetailScreen', { id: item.id })
       }}
       >
-      <TextRegular>{item.restaurantId}</TextRegular>
+      <TextSemiBold>{item.restaurant.name}</TextSemiBold>
       <TextRegular>Delivered at: <TextRegular textStyle={{ color: GlobalStyles.brandBlue }}>{item.deliveredAt}</TextRegular></TextRegular>
       <TextRegular>Address: <TextRegular textStyle={{ color: GlobalStyles.brandPrimary }}>{item.address}</TextRegular></TextRegular>
       <TextSemiBold>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{item.price}€</TextSemiBold></TextSemiBold>
