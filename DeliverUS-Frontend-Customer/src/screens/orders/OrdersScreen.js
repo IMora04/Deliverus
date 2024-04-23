@@ -1,43 +1,69 @@
-import React from 'react'
-import { StyleSheet, View, Pressable } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, FlatList, View, Pressable } from 'react-native'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
 import { brandPrimary, brandPrimaryTap } from '../../styles/GlobalStyles'
+import { getAll } from '../../api/OrderEndPoints'
+import * as GlobalStyles from '../../styles/GlobalStyles'
+import { showMessage } from 'react-native-flash-message'
+import ImageCard from '../../components/ImageCard'
+import restaurantLogo from '../../../assets/logo.png'
 
-export default function OrdersScreen ({ navigation }) {
+export default function OrdersScreen ({ navigation, route }) {
+  const [orders, setOrders] = useState([])
+
+  useEffect(() => {
+    async function fetchOrders () {
+      try {
+        const fetchedOrders = await getAll()
+        fetchedOrders.sort((a, b) => new Date(b.deliveredAt) - new Date(a.deliveredAt))
+        setOrders(fetchedOrders)
+      } catch (error) {
+        showMessage({
+          message: `There was an error while retrieving orders. ${error} `,
+          type: 'error',
+          style: GlobalStyles.flashStyle,
+          titleStyle: GlobalStyles.flashTextStyle
+        })
+      }
+    }
+    fetchOrders()
+  }, [route])
+
+  const renderOrder = ({ item }) => {
+    return (
+      <ImageCard
+      imageUri = {item.logo ? { uri: process.env.API_BASE_URL + '/' + item.logo } : restaurantLogo}
+      title={item.name}
+      onPress={() => {
+        navigation.navigate('OrderDetailScreen', { id: item.id })
+      }}
+      >
+      <TextRegular>{item.restaurantId}</TextRegular>
+      <TextRegular>Delivered at: <TextRegular textStyle={{ color: GlobalStyles.brandBlue }}>{item.deliveredAt}</TextRegular></TextRegular>
+      <TextRegular>Address: <TextRegular textStyle={{ color: GlobalStyles.brandPrimary }}>{item.address}</TextRegular></TextRegular>
+      <TextSemiBold>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{item.price}€</TextSemiBold></TextSemiBold>
+      </ImageCard>
+    )
+  }
+  const renderEmptyOrdersList = () => {
+    return (
+      <TextRegular textStyle={styles.emptyList}>
+        No orders were retreived.
+      </TextRegular>
+    )
+  }
   return (
-        <View style={styles.container}>
-          <View style={styles.FRHeader}>
-            <TextSemiBold>FR5: Listing my confirmed orders</TextSemiBold>
-            <TextRegular>A Customer will be able to check his/her confirmed orders, sorted from the most recent to the oldest.</TextRegular>
-            <TextSemiBold>FR8: Edit/delete order</TextSemiBold>
-            <TextRegular>If the order is in the state 'pending', the customer can edit or remove the products included or remove the whole order. The delivery address can also be modified in the state 'pending'. If the order is in the state 'sent' or 'delivered' no edition is allowed.</TextRegular>
-          </View>
-            <Pressable
-                onPress={() => {
-                  navigation.navigate('OrderDetailScreen', { id: Math.floor(Math.random() * 100) })
-                }}
-                style={({ pressed }) => [
-                  {
-                    backgroundColor: pressed
-                      ? brandPrimaryTap
-                      : brandPrimary
-                  },
-                  styles.button
-                ]}
-            >
-                <TextRegular textStyle={styles.text}>Go to Order Detail Screen</TextRegular>
-            </Pressable>
-        </View>
+    <FlatList
+      data = {orders}
+      renderItem={renderOrder}
+      keyExtractor={item => item.id.toString()}
+      ListEmptyComponent={renderEmptyOrdersList}
+      />
   )
 }
 
 const styles = StyleSheet.create({
-  FRHeader: { // TODO: remove this style and the related <View>. Only for clarification purposes
-    justifyContent: 'center',
-    alignItems: 'left',
-    margin: 50
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
