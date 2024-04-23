@@ -88,5 +88,3 @@ const styles = StyleSheet.create({
     padding: 50
   }
 })
-
-// lo siento nacho lo tengo q comprobar
