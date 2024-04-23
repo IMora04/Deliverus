@@ -1,13 +1,13 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, Pressable, FlatList } from 'react-native'
+import { StyleSheet, FlatList, View, Pressable } from 'react-native'
 import TextSemiBold from '../../components/TextSemibold'
 import TextRegular from '../../components/TextRegular'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import { getAll } from '../../api/RestaurantEndpoints'
 import { showMessage } from 'react-native-flash-message'
 import ImageCard from '../../components/ImageCard'
-import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
+import restaurantLogo from '../../../assets/logo.png'
 
 export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
@@ -54,32 +54,17 @@ export default function RestaurantsScreen ({ navigation, route }) {
     )
   }
 
-  const renderHeader = () => {
-    return (
-      <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
-        <TextRegular textStyle={styles.text}>
-          Restaurant List
-        </TextRegular>
-      </View>
-    )
-  }
-
   return (
-     <FlatList
-      data={restaurants}
+    <FlatList
+      data = {restaurants}
       renderItem={renderRestaurant}
       keyExtractor={item => item.id.toString()}
-      ListHeaderComponent={renderHeader}
       ListEmptyComponent={renderEmptyRestaurantsList}
-    />
+      />
   )
 }
+
 const styles = StyleSheet.create({
-  FRHeader: { // TODO: remove this style and the related <View>. Only for clarification purposes
-    justifyContent: 'center',
-    alignItems: 'left',
-    margin: 50
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -95,7 +80,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    color: 'black',
+    color: 'white',
     textAlign: 'center'
   },
   emptyList: {
