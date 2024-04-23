@@ -1,6 +1,6 @@
 import { get } from './helpers/ApiRequestsHelper'
 function getAll () {
-  return get('users/myrestaurants')
+  return get('restaurants')
 }
 
 function getDetail (id) {
