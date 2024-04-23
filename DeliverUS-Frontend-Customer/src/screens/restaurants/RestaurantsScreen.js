@@ -109,14 +109,19 @@ export default function RestaurantsScreen ({ navigation, route }) {
 
   return (showProducts === 1
     ? <ScrollView>
-    <Pressable
-    onPress={() => {
-      setShowProducts(showProducts === 0 ? 1 : 0)
-    }}>
-      <TextSemiBold>
-        Show top products
-      </TextSemiBold>
-    </Pressable>
+    <View style={{ flexDirection: 'row' }}>
+      <View style={[{ flex: 2 }]}></View>
+      <Pressable
+      style={[styles.button, { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+      onPress={() => {
+        setShowProducts(showProducts === 0 ? 1 : 0)
+      }}>
+        <TextSemiBold style={{ textAlign: 'center' }}>
+          Show top products
+        </TextSemiBold>
+      </Pressable>
+      <View style={[{ flex: 2 }]}></View>
+    </View>
     <FlatList
       data = {restaurants}
       renderItem={renderRestaurant}
@@ -126,6 +131,20 @@ export default function RestaurantsScreen ({ navigation, route }) {
     />
     </ScrollView>
     : <ScrollView>
+    <View style={{ flexDirection: 'row' }}>
+      <View style={[{ flex: 2 }]}></View>
+      <Pressable
+      style={[styles.button, { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+      onPress={() => {
+        setShowProducts(showProducts === 0 ? 1 : 0)
+      }}>
+        <TextSemiBold style={{ textAlign: 'center' }}>
+          Hide top products
+        </TextSemiBold>
+      </Pressable>
+      <View style={[{ flex: 2 }]}></View>
+    </View>
+
     <FlatList
       style={[{ marginTop: 20 }]}
       horizontal = {true}
@@ -159,7 +178,8 @@ const styles = StyleSheet.create({
     height: 40,
     margin: 12,
     padding: 10,
-    width: '100%'
+    width: '100%',
+    backgroundColor: GlobalStyles.brandPrimary
   },
   text: {
     fontSize: 16,
