@@ -1,16 +1,21 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, FlatList, View, Pressable } from 'react-native'
+import { StyleSheet, FlatList, View, Pressable, ScrollView } from 'react-native'
 import TextSemiBold from '../../components/TextSemibold'
 import TextRegular from '../../components/TextRegular'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import { getAll } from '../../api/RestaurantEndpoints'
 import { showMessage } from 'react-native-flash-message'
 import ImageCard from '../../components/ImageCard'
+import ImageCardHorizontal from '../../components/ImageCardHorizontal'
 import restaurantLogo from '../../../assets/logo.png'
+import productImage from '../../../assets/product.jpeg'
+import { getTopProducts } from '../../api/ProductEndpoints'
 
 export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
+  const [topProducts, setTopProducts] = useState([])
+  const [showProducts, setShowProducts] = useState(1)
 
   useEffect(() => {
     async function fetchRestaurants () {
@@ -27,6 +32,23 @@ export default function RestaurantsScreen ({ navigation, route }) {
       }
     }
     fetchRestaurants()
+  }, [route])
+
+  useEffect(() => {
+    async function fetchTopProducts () {
+      try {
+        const fetchedProducts = await getTopProducts()
+        setTopProducts(fetchedProducts)
+      } catch (error) {
+        showMessage({
+          message: `There was an error while retrieving the 3 top products. ${error} `,
+          type: 'error',
+          style: GlobalStyles.flashStyle,
+          titleStyle: GlobalStyles.flashTextStyle
+        })
+      }
+    }
+    fetchTopProducts()
   }, [route])
 
   const renderRestaurant = ({ item }) => {
@@ -46,6 +68,21 @@ export default function RestaurantsScreen ({ navigation, route }) {
     )
   }
 
+  const renderProduct = ({ item }) => {
+    return (
+      <ImageCardHorizontal
+      imageUri = {item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : productImage}
+      title={item.name}
+      onPress={() => {
+        navigation.navigate('RestaurantDetailScreen', { id: item.restaurant.id })
+      }}
+      >
+      <TextRegular numberOfLines={2}>{item.description}</TextRegular>
+      <TextSemiBold>Restaurant: <TextSemiBold textStyle={{ color: 'black' }}>{item.restaurant.name}</TextSemiBold></TextSemiBold>
+      </ImageCardHorizontal>
+    )
+  }
+
   const renderEmptyRestaurantsList = () => {
     return (
       <TextRegular textStyle={styles.emptyList}>
@@ -54,13 +91,59 @@ export default function RestaurantsScreen ({ navigation, route }) {
     )
   }
 
-  return (
+  const renderRestaurantHeader = () => {
+    return (
+      <TextSemiBold textStyle={[styles.text, { margin: 20 }]}>
+        Restaurants
+      </TextSemiBold>
+    )
+  }
+
+  const renderEmptyProductsList = () => {
+    return (
+      <TextRegular>
+        No top products were retreived.
+      </TextRegular>
+    )
+  }
+
+  return (showProducts === 1
+    ? <ScrollView>
+    <Pressable
+    onPress={() => {
+      setShowProducts(showProducts === 0 ? 1 : 0)
+    }}>
+      <TextSemiBold>
+        Show top products
+      </TextSemiBold>
+    </Pressable>
     <FlatList
       data = {restaurants}
       renderItem={renderRestaurant}
       keyExtractor={item => item.id.toString()}
+      ListHeaderComponent={renderRestaurantHeader}
       ListEmptyComponent={renderEmptyRestaurantsList}
-      />
+    />
+    </ScrollView>
+    : <ScrollView>
+    <FlatList
+      style={[{ marginTop: 20 }]}
+      horizontal = {true}
+      data = {topProducts}
+      contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+      renderItem={renderProduct}
+      scrollEnabled={false}
+      keyExtractor={item => item.id.toString()}
+      ListEmptyComponent={renderEmptyProductsList}
+    />
+    <FlatList
+      data = {restaurants}
+      renderItem={renderRestaurant}
+      keyExtractor={item => item.id.toString()}
+      ListHeaderComponent={renderRestaurantHeader}
+      ListEmptyComponent={renderEmptyRestaurantsList}
+    />
+    </ScrollView>
   )
 }
 
@@ -80,8 +163,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    color: 'white',
-    textAlign: 'center'
+    color: 'black',
+    textAlign: 'left'
   },
   emptyList: {
     textAlign: 'center',
