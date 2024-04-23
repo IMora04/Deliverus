@@ -1,18 +1,30 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, Pressable } from 'react-native'
 import TextSemiBold from '../../components/TextSemibold'
 import TextRegular from '../../components/TextRegular'
 import * as GlobalStyles from '../../styles/GlobalStyles'
+import { getAll } from '../../api/RestaurantEndpoints'
+import { showMessage } from 'react-native-flash-message'
 
 export default function RestaurantsScreen ({ navigation, route }) {
-  // TODO: Create a state for storing the restaurants
+  const [restaurants, setRestaurants] = useState([])
 
   useEffect(() => {
-    // TODO: Fetch all restaurants and set them to state.
-    //      Notice that it is not required to be logged in.
-
-    // TODO: set restaurants to state
+    async function fetchRestaurants () {
+      try {
+        const fetchedRestaurants = await getAll()
+        setRestaurants(fetchedRestaurants)
+      } catch (error) {
+        showMessage({
+          message: `There was an error while retrieving restaurants. ${error} `,
+          type: 'error',
+          style: GlobalStyles.flashStyle,
+          titleStyle: GlobalStyles.flashTextStyle
+        })
+      }
+    }
+    fetchRestaurants()
   }, [route])
 
   return (
