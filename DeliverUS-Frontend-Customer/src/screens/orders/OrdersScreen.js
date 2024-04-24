@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, FlatList, View, Pressable } from 'react-native'
+import { StyleSheet, FlatList, View, Pressable, TimePickerAndroid } from 'react-native'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
 import { brandPrimary, brandPrimaryTap } from '../../styles/GlobalStyles'
@@ -40,17 +40,20 @@ export default function OrdersScreen ({ navigation, route }) {
       }}
       >
       <TextSemiBold>{item.restaurant.name}</TextSemiBold>
-      <TextRegular>Delivered at: <TextRegular textStyle={{ color: GlobalStyles.brandBlue }}>{item.deliveredAt}</TextRegular></TextRegular>
+      <TextRegular>Deliver date: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.deliveredAt).slice(0, 10)}</TextRegular></TextRegular>
+      <TextRegular>Deliver time: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.deliveredAt).slice(11, 19)}</TextRegular></TextRegular>
+      <TextRegular>Order status: <TextRegular textStyle={{ color: GlobalStyles.brandGreen }}>{item.status}</TextRegular></TextRegular>
       <TextRegular>Address: <TextRegular textStyle={{ color: GlobalStyles.brandPrimary }}>{item.address}</TextRegular></TextRegular>
       <TextSemiBold>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{item.price}€</TextSemiBold></TextSemiBold>
       </ImageCard>
     )
   }
+
   const renderEmptyOrdersList = () => {
     return (
-      <TextSemiBold textStyle={styles.emptyList}>
+      <TextRegular textStyle={styles.emptyList}>
         No orders were retreived.
-      </TextSemiBold>
+      </TextRegular>
     )
   }
   return (
@@ -81,10 +84,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
     textAlign: 'center'
-  },
-  emptyList: {
-    fontSize: 16,
-    textAlign: 'center',
-    padding: 50
   }
 })
