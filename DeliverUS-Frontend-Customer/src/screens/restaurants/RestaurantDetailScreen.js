@@ -20,8 +20,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     return (
       <View>
         <View style={styles.FRHeader}>
-          <TextSemiBold>FR2: Restaurants details and menu.</TextSemiBold>
-          <TextRegular>Customers will be able to query restaurants details and the products offered by them.</TextRegular>
           <TextSemiBold>FR3: Add, edit and remove products to a new order.</TextSemiBold>
           <TextRegular>A customer can add several products, and several units of a product to a new order. Before confirming, customer can edit and remove products. Once the order is confirmed, it cannot be edited or removed.</TextRegular>
           <TextSemiBold>FR4: Confirm or dismiss new order.</TextSemiBold>
@@ -92,7 +90,7 @@ const styles = StyleSheet.create({
   FRHeader: { // TODO: remove this style and the related <View>. Only for clarification purposes
     justifyContent: 'center',
     alignItems: 'left',
-    margin: 50
+    margin: 20
   },
   container: {
     flex: 1
