@@ -65,9 +65,11 @@ export default function OrderDetailScreen ({ navigation, route }) {
       <View>
         <ImageBackground source={(restaurant?.heroImage) ? { uri: process.env.API_BASE_URL + '/' + restaurant.heroImage, cache: 'force-cache' } : undefined} style={styles.imageBackground}>
           <View style={styles.restaurantHeaderContainer}>
-            <TextSemiBold textStyle={styles.textTitle}>{restaurant.name}</TextSemiBold>
             <Image style={styles.image} source={restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + restaurant.logo, cache: 'force-cache' } : undefined} />
-            <TextSemiBold>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{order.price}€</TextSemiBold></TextSemiBold>
+              <View style={[{ flexDirection: 'column' }]}>
+                <TextSemiBold textStyle={styles.textTitle}>{restaurant.name}</TextSemiBold>
+                <TextSemiBold textStyle={styles.subtext}>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandSecondaryTap }}>{order.price}€</TextSemiBold></TextSemiBold>
+              </View>
           </View>
         </ImageBackground>
       </View>
@@ -86,23 +88,8 @@ export default function OrderDetailScreen ({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 50
-  },
-  text: {
-    fontSize: 16,
-    color: 'black',
-    alignSelf: 'center',
-    marginLeft: 5
-  },
   description: {
     color: GlobalStyles.brandBlue
-  },
-  descriptionRes: {
-    color: 'black'
   },
   availability: {
     textAlign: 'right',
@@ -117,8 +104,9 @@ const styles = StyleSheet.create({
     height: 150,
     padding: 20,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    flexDirection: 'column',
-    alignItems: 'left'
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'left'
   },
   imageBackground: {
     flex: 1,
@@ -129,6 +117,14 @@ const styles = StyleSheet.create({
     height: 100,
     width: 100,
     margin: 10
+  },
+  textTitle: {
+    fontSize: 30,
+    color: 'white'
+  },
+  subtext: {
+    fontSize: 15,
+    color: 'white'
   },
   quantity: {
     color: 'black'
