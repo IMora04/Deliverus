@@ -40,9 +40,24 @@ export default function OrdersScreen ({ navigation, route }) {
       }}
       >
       <TextSemiBold>{item.restaurant.name}</TextSemiBold>
-      <TextRegular>Deliver date: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.deliveredAt).slice(0, 10)}</TextRegular></TextRegular>
-      <TextRegular>Deliver time: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.deliveredAt).slice(11, 19)}</TextRegular></TextRegular>
       <TextRegular>Order status: <TextRegular textStyle={{ color: GlobalStyles.brandGreen }}>{item.status}</TextRegular></TextRegular>
+
+      {
+        item.deliveredAt &&
+        <>
+        <TextRegular>Order date: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.deliveredAt).slice(0, 10)}</TextRegular></TextRegular>
+        <TextRegular>Deliver time: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.deliveredAt).slice(11, 19)}</TextRegular></TextRegular>
+        </>
+      }
+
+      {
+        item.sentAt && !item.deliveredAt &&
+        <>
+        <TextRegular>Order date: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.sentAt).slice(0, 10)}</TextRegular></TextRegular>
+        <TextRegular>Shipping time: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.sentAt).slice(11, 19)}</TextRegular></TextRegular>
+        </>
+      }
+
       <TextRegular>Address: <TextRegular textStyle={{ color: GlobalStyles.brandPrimary }}>{item.address}</TextRegular></TextRegular>
       <TextSemiBold>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{item.price}€</TextSemiBold></TextSemiBold>
       </ImageCard>
