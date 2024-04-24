@@ -15,7 +15,7 @@ import { getTopProducts } from '../../api/ProductEndpoints'
 export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
   const [topProducts, setTopProducts] = useState([])
-  const [showProducts, setShowProducts] = useState(1)
+  const [showProducts, setShowProducts] = useState(0)
 
   useEffect(() => {
     async function fetchRestaurants () {
@@ -107,8 +107,8 @@ export default function RestaurantsScreen ({ navigation, route }) {
     )
   }
 
-  return (showProducts === 1
-    ? <ScrollView>
+  return (
+  <ScrollView>
     <View style={{ flexDirection: 'row' }}>
       <View style={[{ flex: 2 }]}></View>
       <Pressable
@@ -116,44 +116,39 @@ export default function RestaurantsScreen ({ navigation, route }) {
       onPress={() => {
         setShowProducts(showProducts === 0 ? 1 : 0)
       }}>
-        <TextSemiBold style={styles.buttonText}>
+
+        {
+          showProducts === 0 &&
+          <TextSemiBold style={styles.buttonText}>
           Show top products
-        </TextSemiBold>
-      </Pressable>
-      <View style={[{ flex: 2 }]}></View>
-    </View>
-    <FlatList
-      data = {restaurants}
-      renderItem={renderRestaurant}
-      keyExtractor={item => item.id.toString()}
-      ListHeaderComponent={renderRestaurantHeader}
-      ListEmptyComponent={renderEmptyRestaurantsList}
-    />
-    </ScrollView>
-    : <ScrollView>
-    <View style={{ flexDirection: 'row' }}>
-      <View style={[{ flex: 2 }]}></View>
-      <Pressable
-      style={[styles.button, { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
-      onPress={() => {
-        setShowProducts(showProducts === 0 ? 1 : 0)
-      }}>
-        <TextSemiBold style={styles.buttonText}>
+          </TextSemiBold>
+        }
+
+        {
+          showProducts === 1 &&
+          <TextSemiBold style={styles.buttonText}>
           Hide top products
-        </TextSemiBold>
+          </TextSemiBold>
+        }
+
       </Pressable>
       <View style={[{ flex: 2 }]}></View>
     </View>
+
+    {
+      showProducts === 1 &&
       <FlatList
-        style={{ marginVertical: 20 }}
-        horizontal = {true}
-        data = {topProducts}
-        contentContainerStyle={styles.contentContainer}
-        renderItem={renderProduct}
-        scrollEnabled={false}
-        keyExtractor={item => item.id.toString()}
-        ListEmptyComponent={renderEmptyProductsList}
+      style={{ marginVertical: 20 }}
+      horizontal = {true}
+      data = {topProducts}
+      contentContainerStyle={styles.contentContainer}
+      renderItem={renderProduct}
+      scrollEnabled={false}
+      keyExtractor={item => item.id.toString()}
+      ListEmptyComponent={renderEmptyProductsList}
       />
+    }
+
     <FlatList
       data = {restaurants}
       renderItem={renderRestaurant}
@@ -161,7 +156,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
       ListHeaderComponent={renderRestaurantHeader}
       ListEmptyComponent={renderEmptyRestaurantsList}
     />
-    </ScrollView>
+  </ScrollView>
   )
 }
 
