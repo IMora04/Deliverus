@@ -85,9 +85,9 @@ export default function RestaurantsScreen ({ navigation, route }) {
 
   const renderEmptyRestaurantsList = () => {
     return (
-      <TextRegular textStyle={styles.emptyList}>
+      <TextSemiBold textStyle={styles.emptyList}>
         No restaurants were retreived.
-      </TextRegular>
+      </TextSemiBold>
     )
   }
 
@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
     textAlign: 'left'
   },
   emptyList: {
+    fontSize: 16,
     textAlign: 'center',
     padding: 50
   }

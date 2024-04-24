@@ -48,9 +48,9 @@ export default function OrdersScreen ({ navigation, route }) {
   }
   const renderEmptyOrdersList = () => {
     return (
-      <TextRegular textStyle={styles.emptyList}>
+      <TextSemiBold textStyle={styles.emptyList}>
         No orders were retreived.
-      </TextRegular>
+      </TextSemiBold>
     )
   }
   return (
@@ -81,5 +81,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
     textAlign: 'center'
+  },
+  emptyList: {
+    fontSize: 16,
+    textAlign: 'center',
+    padding: 50
   }
 })
