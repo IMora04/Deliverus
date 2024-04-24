@@ -26,9 +26,11 @@ export default function ImageCardHorizontal (props) {
         {
           backgroundColor: pressed
             ? GlobalStyles.brandPrimaryTap
-            : GlobalStyles.brandBackground
-        },
-        styles.wrapperCustom
+            : GlobalStyles.brandBackground,
+          borderRadius: 15,
+          margin: 2,
+          padding: 2
+        }
       ]}>
           {renderImageCardBody(props)}
         </Pressable>
@@ -40,12 +42,10 @@ export default function ImageCardHorizontal (props) {
 
 const styles = StyleSheet.create({
   card: {
-    marginLeft: 5,
     marginVertical: '1%',
-    width: 127,
-    padding: 2,
-    alignItems: 'flex-start',
     flexDirection: 'column',
+    paddingHorizontal: 5,
+    paddingTop: 5,
     backgroundColor: 'white',
     borderRadius: 15
   },

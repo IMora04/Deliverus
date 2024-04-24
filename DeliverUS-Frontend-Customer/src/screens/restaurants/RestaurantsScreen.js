@@ -116,7 +116,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
       onPress={() => {
         setShowProducts(showProducts === 0 ? 1 : 0)
       }}>
-        <TextSemiBold style={{ textAlign: 'center' }}>
+        <TextSemiBold style={styles.buttonText}>
           Show top products
         </TextSemiBold>
       </Pressable>
@@ -138,23 +138,22 @@ export default function RestaurantsScreen ({ navigation, route }) {
       onPress={() => {
         setShowProducts(showProducts === 0 ? 1 : 0)
       }}>
-        <TextSemiBold style={{ textAlign: 'center' }}>
+        <TextSemiBold style={styles.buttonText}>
           Hide top products
         </TextSemiBold>
       </Pressable>
       <View style={[{ flex: 2 }]}></View>
     </View>
-
-    <FlatList
-      style={[{ marginTop: 20 }]}
-      horizontal = {true}
-      data = {topProducts}
-      contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-      renderItem={renderProduct}
-      scrollEnabled={false}
-      keyExtractor={item => item.id.toString()}
-      ListEmptyComponent={renderEmptyProductsList}
-    />
+      <FlatList
+        style={{ marginVertical: 20 }}
+        horizontal = {true}
+        data = {topProducts}
+        contentContainerStyle={styles.contentContainer}
+        renderItem={renderProduct}
+        scrollEnabled={false}
+        keyExtractor={item => item.id.toString()}
+        ListEmptyComponent={renderEmptyProductsList}
+      />
     <FlatList
       data = {restaurants}
       renderItem={renderRestaurant}
@@ -167,12 +166,6 @@ export default function RestaurantsScreen ({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 50
-  },
   button: {
     borderRadius: 8,
     height: 40,
@@ -180,6 +173,20 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '100%',
     backgroundColor: GlobalStyles.brandPrimary
+  },
+  productView: {
+    flex: 1,
+    flexShrink: 1,
+    flexDirection: 'row'
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white'
   },
   text: {
     fontSize: 16,
