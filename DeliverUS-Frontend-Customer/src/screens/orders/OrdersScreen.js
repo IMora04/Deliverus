@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, FlatList, View, Pressable, TimePickerAndroid } from 'react-native'
+import React, { useEffect, useState, useContext } from 'react'
+import { StyleSheet, FlatList } from 'react-native'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
-import { brandPrimary, brandPrimaryTap } from '../../styles/GlobalStyles'
 import { getAll } from '../../api/OrderEndPoints'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import { showMessage } from 'react-native-flash-message'
 import ImageCard from '../../components/ImageCard'
 import restaurantLogo from '../../../assets/logo.png'
+import { AuthorizationContext } from '../../context/AuthorizationContext'
 
 export default function OrdersScreen ({ navigation, route }) {
+  const { loggedInUser } = useContext(AuthorizationContext)
   const [orders, setOrders] = useState([])
 
   useEffect(() => {
@@ -28,9 +29,10 @@ export default function OrdersScreen ({ navigation, route }) {
       }
     }
     fetchOrders()
-  }, [route])
+  }, [route, loggedInUser])
 
   const renderOrder = ({ item }) => {
+    // TODO: add some more properties and reorder them
     return (
       <ImageCard
       imageUri = {item.restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + item.restaurant.logo } : restaurantLogo}
@@ -65,6 +67,7 @@ export default function OrdersScreen ({ navigation, route }) {
   }
 
   const renderEmptyOrdersList = () => {
+    // TODO: Center, bold text.
     return (
       <TextRegular textStyle={styles.emptyList}>
         No orders were retreived.
