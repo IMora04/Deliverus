@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, FlatList, ImageBackground, Image } from 'react-native'
+import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { getDetail } from '../../api/RestaurantEndpoints'
 import ImageCard from '../../components/ImageCard'
@@ -11,6 +11,11 @@ import defaultProductImage from '../../../assets/product.jpeg'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const [restaurant, setRestaurant] = useState({})
+  const [orderData, setOrderData] = useState({
+    restaurantId: restaurant.id,
+    products: [],
+    address: 'testAddress'
+  })
 
   useEffect(() => {
     fetchRestaurantDetail()
@@ -38,6 +43,8 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   }
 
   const renderProduct = ({ item }) => {
+    const productInArray = orderData.products.find(p => p.productId === item.id)
+    const itemsSelected = productInArray ? productInArray.quantity : 0
     return (
       <ImageCard
         imageUri={item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : defaultProductImage}
@@ -48,6 +55,46 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
         {!item.availability &&
           <TextRegular textStyle={styles.availability }>Not available</TextRegular>
         }
+        <Pressable
+          onPress={() => {
+            if (!item.availability) {
+              return
+            }
+            let found = false
+            for (let i = 0; i < orderData.products.length; i++) {
+              const product = orderData.products[i]
+              if (product.productId === item.id) {
+                product.quantity = product.quantity + 1
+                found = true
+              }
+            }
+            if (!found) {
+              orderData.products.push({ productId: item.id, quantity: 1 })
+            }
+            const newOrderData = { ...orderData }
+            setOrderData(newOrderData)
+            console.log(item.availability)
+          }}>
+          <TextRegular>+</TextRegular>
+        </Pressable>
+        <TextRegular>{itemsSelected}</TextRegular>
+        <Pressable
+          onPress={() => {
+            for (let i = 0; i < orderData.products.length; i++) {
+              const product = orderData.products[i]
+              if (product.productId === item.id) {
+                if (product.quantity !== 1) {
+                  product.quantity = product.quantity - 1
+                } else {
+                  orderData.products.splice(i)
+                }
+              }
+            }
+            const newOrderData = { ...orderData }
+            setOrderData(newOrderData)
+          }}>
+          <TextRegular>-</TextRegular>
+        </Pressable>
       </ImageCard>
     )
   }
@@ -64,6 +111,8 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     try {
       const fetchedRestaurant = await getDetail(route.params.id)
       setRestaurant(fetchedRestaurant)
+      orderData.restaurantId = fetchedRestaurant.id
+      setOrderData(orderData)
     } catch (error) {
       showMessage({
         message: `There was an error while retrieving restaurant details (id ${route.params.id}). ${error}`,
