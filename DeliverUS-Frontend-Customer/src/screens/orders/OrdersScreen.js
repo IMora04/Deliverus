@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, FlatList, View, Pressable, ImageBackground, Image, TimePickerAndroid } from 'react-native'
+import React, { useEffect, useState, useContext } from 'react'
+import { StyleSheet, FlatList, View } from 'react-native'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
-import { brandPrimary, brandPrimaryTap } from '../../styles/GlobalStyles'
 import { getAll } from '../../api/OrderEndPoints'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import { showMessage } from 'react-native-flash-message'
 import ImageCard from '../../components/ImageCard'
 import restaurantLogo from '../../../assets/logo.png'
+import { AuthorizationContext } from '../../context/AuthorizationContext'
 
 export default function OrdersScreen ({ navigation, route }) {
+  const { loggedInUser } = useContext(AuthorizationContext)
   const [orders, setOrders] = useState([])
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function OrdersScreen ({ navigation, route }) {
       }
     }
     fetchOrders()
-  }, [route])
+  }, [route, loggedInUser])
 
   const renderOrder = ({ item }) => {
     return (
@@ -92,21 +93,8 @@ export default function OrdersScreen ({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 50
-  },
-  button: {
-    borderRadius: 8,
-    height: 40,
-    margin: 12,
-    padding: 10,
-    width: '100%'
-  },
   text: {
-    fontSize: 18,
+    fontSize: 16,
     color: 'white',
     textAlign: 'center'
   },
