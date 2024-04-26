@@ -11,6 +11,7 @@ import defaultProductImage from '../../../assets/product.jpeg'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const [restaurant, setRestaurant] = useState({})
+  // TODO: Use user address
   const [orderData, setOrderData] = useState({
     restaurantId: restaurant.id,
     products: [],
@@ -56,6 +57,8 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           <TextRegular textStyle={styles.availability }>Not available</TextRegular>
         }
         <Pressable
+        // TODO: Order just when logged in
+        // TODO: Change button style
           onPress={() => {
             if (!item.availability) {
               return
@@ -73,7 +76,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
             }
             const newOrderData = { ...orderData }
             setOrderData(newOrderData)
-            console.log(item.availability)
           }}>
           <TextRegular>+</TextRegular>
         </Pressable>
