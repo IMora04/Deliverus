@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { getDetail } from '../../api/RestaurantEndpoints'
@@ -8,8 +8,10 @@ import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import defaultProductImage from '../../../assets/product.jpeg'
+import { AuthorizationContext } from '../../context/AuthorizationContext'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
+  const { loggedInUser } = useContext(AuthorizationContext)
   const [restaurant, setRestaurant] = useState({})
   // TODO: Use user address
   const [orderData, setOrderData] = useState({
@@ -56,47 +58,51 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
         {!item.availability &&
           <TextRegular textStyle={styles.availability }>Not available</TextRegular>
         }
-        <Pressable
-        // TODO: Order just when logged in
-        // TODO: Change button style
-          onPress={() => {
-            if (!item.availability) {
-              return
-            }
-            let found = false
-            for (let i = 0; i < orderData.products.length; i++) {
-              const product = orderData.products[i]
-              if (product.productId === item.id) {
-                product.quantity = product.quantity + 1
-                found = true
-              }
-            }
-            if (!found) {
-              orderData.products.push({ productId: item.id, quantity: 1 })
-            }
-            const newOrderData = { ...orderData }
-            setOrderData(newOrderData)
-          }}>
-          <TextRegular>+</TextRegular>
-        </Pressable>
-        <TextRegular>{itemsSelected}</TextRegular>
-        <Pressable
-          onPress={() => {
-            for (let i = 0; i < orderData.products.length; i++) {
-              const product = orderData.products[i]
-              if (product.productId === item.id) {
-                if (product.quantity !== 1) {
-                  product.quantity = product.quantity - 1
-                } else {
-                  orderData.products.splice(i)
+        { loggedInUser &&
+          <>
+            <Pressable
+            // TODO: Order just when logged in
+            // TODO: Change button style
+              onPress={() => {
+                if (!item.availability) {
+                  return
                 }
-              }
-            }
-            const newOrderData = { ...orderData }
-            setOrderData(newOrderData)
-          }}>
-          <TextRegular>-</TextRegular>
-        </Pressable>
+                let found = false
+                for (let i = 0; i < orderData.products.length; i++) {
+                  const product = orderData.products[i]
+                  if (product.productId === item.id) {
+                    product.quantity = product.quantity + 1
+                    found = true
+                  }
+                }
+                if (!found) {
+                  orderData.products.push({ productId: item.id, quantity: 1 })
+                }
+                const newOrderData = { ...orderData }
+                setOrderData(newOrderData)
+              }}>
+              <TextRegular>+</TextRegular>
+            </Pressable>
+            <TextRegular>{itemsSelected}</TextRegular>
+            <Pressable
+              onPress={() => {
+                for (let i = 0; i < orderData.products.length; i++) {
+                  const product = orderData.products[i]
+                  if (product.productId === item.id) {
+                    if (product.quantity !== 1) {
+                      product.quantity = product.quantity - 1
+                    } else {
+                      orderData.products.splice(i)
+                    }
+                  }
+                }
+                const newOrderData = { ...orderData }
+                setOrderData(newOrderData)
+              }}>
+              <TextRegular>-</TextRegular>
+            </Pressable>
+          </>
+        }
       </ImageCard>
     )
   }
