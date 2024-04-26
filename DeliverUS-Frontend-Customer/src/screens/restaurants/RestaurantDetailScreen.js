@@ -85,16 +85,20 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
         imageUri={item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : defaultProductImage}
         title={item.name}
       >
-        <TextRegular numberOfLines={2}>{item.description}</TextRegular>
-        <TextSemiBold textStyle={styles.price}>{item.price.toFixed(2)}€</TextSemiBold>
-        {!item.availability &&
-          <TextRegular textStyle={styles.availability }>Not available</TextRegular>
-        }
-        { loggedInUser &&
-          <>
-            <Pressable
-            // TODO: Order just when logged in
-            // TODO: Change button style
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1 }}>
+            <TextRegular numberOfLines={2}>{item.description}</TextRegular>
+            <TextSemiBold textStyle={styles.price}>{item.price.toFixed(2)}€</TextSemiBold>
+            {!item.availability &&
+              <TextSemiBold textStyle={styles.availability }>Not available</TextSemiBold>
+            }
+          </View>
+          { loggedInUser &&
+        <View style={{ height: 80 }}>
+          <View style={{ flex: 1, flexDirection: 'column' }}>
+            <View style={{ backgroundColor: GlobalStyles.brandPrimary, flex: 1, justifyContent: 'center', borderRadius: 5 }}>
+              <Pressable
+              style={{ width: 30, justifyContent: 'center' }}
               onPress={() => {
                 if (!item.availability) {
                   return
@@ -113,10 +117,17 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                 const newOrderData = { ...orderData }
                 setOrderData(newOrderData)
               }}>
-              <TextRegular>+</TextRegular>
-            </Pressable>
-            <TextRegular>{itemsSelected}</TextRegular>
-            <Pressable
+                <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>+</TextSemiBold>
+              </Pressable>
+            </View>
+            <View style={{ flex: 1, justifyContent: 'space-evenly', alignItems: 'center ' }}>
+              <TextSemiBold>
+                {itemsSelected}
+              </TextSemiBold>
+            </View>
+            <View style={{ backgroundColor: GlobalStyles.brandPrimary, flex: 1, justifyContent: 'center', borderRadius: 5 }}>
+              <Pressable
+              style={{ width: 30, justifyContent: 'center' }}
               onPress={() => {
                 for (let i = 0; i < orderData.products.length; i++) {
                   const product = orderData.products[i]
@@ -131,10 +142,13 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                 const newOrderData = { ...orderData }
                 setOrderData(newOrderData)
               }}>
-              <TextRegular>-</TextRegular>
-            </Pressable>
-          </>
+                <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
+              </Pressable>
+            </View>
+          </View>
+        </View>
         }
+        </View>
       </ImageCard>
     )
   }
