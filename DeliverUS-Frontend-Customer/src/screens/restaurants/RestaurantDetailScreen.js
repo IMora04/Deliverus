@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState, useContext } from 'react'
-import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable } from 'react-native'
+import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, ScrollView } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { getDetail } from '../../api/RestaurantEndpoints'
 import ImageCard from '../../components/ImageCard'
@@ -19,6 +19,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     products: [],
     address: 'testAddress'
   })
+  const [showOrder, setShowOrder] = useState(0)
 
   useEffect(() => {
     fetchRestaurantDetail()
@@ -41,6 +42,36 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
             <TextRegular textStyle={styles.description}>{restaurant.restaurantCategory ? restaurant.restaurantCategory.name : ''}</TextRegular>
           </View>
         </ImageBackground>
+      </View>
+    )
+  }
+
+  const renderCartProduct = ({ item }) => {
+    return (
+      <View>
+        <TextSemiBold> {item.name} : <TextRegular> {item.quantity} </TextRegular> </TextSemiBold>
+        <>
+            <Pressable
+              onPress={() => {
+                item.quantity = item.quantity + 1
+                const newOrderData = { ...orderData }
+                setOrderData(newOrderData)
+              }}>
+              <TextRegular>+</TextRegular>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                if (item.quantity !== 1) {
+                  item.quantity = item.quantity - 1
+                } else {
+                  orderData.products.splice(orderData.products.indexOf(item))
+                }
+                const newOrderData = { ...orderData }
+                setOrderData(newOrderData)
+              }}>
+              <TextRegular>-</TextRegular>
+            </Pressable>
+          </>
       </View>
     )
   }
@@ -76,7 +107,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                   }
                 }
                 if (!found) {
-                  orderData.products.push({ productId: item.id, quantity: 1 })
+                  orderData.products.push({ productId: item.id, quantity: 1, name: item.name })
                 }
                 const newOrderData = { ...orderData }
                 setOrderData(newOrderData)
@@ -131,15 +162,64 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     }
   }
 
+  const renderEmptyOrder = () => {
+    return (
+      <TextRegular>
+        No products have been selected
+      </TextRegular>
+    )
+  }
+
   return (
+    <ScrollView>
       <FlatList
-          ListHeaderComponent={renderHeader}
+        ListHeaderComponent={renderHeader}
+      />
+      <View style={{ flexDirection: 'row' }}>
+        <View style={[{ flex: 2 }]}></View>
+        <Pressable
+        style={[styles.button, { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+        onPress={() => {
+          setShowOrder(showOrder === 0 ? 1 : 0)
+        }}>
+
+          {
+            showOrder === 0 &&
+            <TextSemiBold style={styles.buttonText}>
+            Show Order details
+            </TextSemiBold>
+          }
+
+          {
+            showOrder === 1 &&
+            <TextSemiBold style={styles.buttonText}>
+            Hide order details
+            </TextSemiBold>
+          }
+
+        </Pressable>
+        <View style={[{ flex: 2 }]}></View>
+      </View>
+
+      {
+        showOrder === 1 &&
+        <FlatList
+        style={{ marginVertical: 20 }}
+        data = {orderData.products}
+        contentContainerStyle={styles.contentContainer}
+        renderItem={renderCartProduct}
+        scrollEnabled={false}
+        keyExtractor={item => item.productId.toString()}
+        ListEmptyComponent={renderEmptyOrder}
+        />
+      }
+      <FlatList
           ListEmptyComponent={renderEmptyProductsList}
-          style={styles.container}
           data={restaurant.products}
           renderItem={renderProduct}
           keyExtractor={item => item.id.toString()}
         />
+   </ScrollView>
   )
 }
 
@@ -163,6 +243,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     flexDirection: 'column',
     alignItems: 'center'
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white'
   },
   imageBackground: {
     flex: 1,
@@ -188,11 +277,10 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: 8,
     height: 40,
-    marginTop: 12,
+    margin: 12,
     padding: 10,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    width: '80%'
+    width: '100%',
+    backgroundColor: GlobalStyles.brandPrimary
   },
   text: {
     fontSize: 16,
