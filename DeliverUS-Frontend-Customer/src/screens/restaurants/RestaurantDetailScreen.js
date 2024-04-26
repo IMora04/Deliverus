@@ -49,29 +49,30 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   const renderCartProduct = ({ item }) => {
     return (
       <View>
-        <TextSemiBold> {item.name} : <TextRegular> {item.quantity} </TextRegular> </TextSemiBold>
+        <TextSemiBold> {item.name} : <TextRegular> {item.quantity} </TextRegular>
         <>
-            <Pressable
-              onPress={() => {
-                item.quantity = item.quantity + 1
-                const newOrderData = { ...orderData }
-                setOrderData(newOrderData)
-              }}>
-              <TextRegular>+</TextRegular>
-            </Pressable>
-            <Pressable
-              onPress={() => {
-                if (item.quantity !== 1) {
-                  item.quantity = item.quantity - 1
-                } else {
-                  orderData.products.splice(orderData.products.indexOf(item))
-                }
-                const newOrderData = { ...orderData }
-                setOrderData(newOrderData)
-              }}>
-              <TextRegular>-</TextRegular>
-            </Pressable>
+          <Pressable
+            onPress={() => {
+              item.quantity = item.quantity + 1
+              const newOrderData = { ...orderData }
+              setOrderData(newOrderData)
+            }}>
+            <TextRegular>+</TextRegular>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              if (item.quantity !== 1) {
+                item.quantity = item.quantity - 1
+              } else {
+                orderData.products.splice(orderData.products.indexOf(item))
+              }
+              const newOrderData = { ...orderData }
+              setOrderData(newOrderData)
+            }}>
+            <TextRegular>-</TextRegular>
+          </Pressable>
           </>
+        </TextSemiBold>
       </View>
     )
   }
