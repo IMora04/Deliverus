@@ -64,9 +64,9 @@ export default function OrdersScreen ({ navigation, route }) {
 
   const renderOrdersHeader = () => {
     return (
-      <View>
-        <View style={styles.FRHeader}>
-          <TextSemiBold textStyle={[styles.text, { margin: 20 }]}>
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+        <View style={styles.buttonText}>
+          <TextSemiBold textStyle={[styles.text, { margin: 10 }]}>
             All your orders
           </TextSemiBold>
         </View>
@@ -107,7 +107,14 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
-    color: 'black',
+    color: 'white',
     textAlign: 'center'
+  },
+  buttonText: {
+    borderRadius: 8,
+    margin: 10,
+    padding: 10,
+    width: '50%',
+    backgroundColor: GlobalStyles.brandPrimary
   }
 })
