@@ -9,6 +9,7 @@ import TextSemiBold from '../../components/TextSemibold'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import defaultProductImage from '../../../assets/product.jpeg'
 import { AuthorizationContext } from '../../context/AuthorizationContext'
+import shoppingCart from '../../../assets/shoppingCart.png'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const { loggedInUser } = useContext(AuthorizationContext)
@@ -48,31 +49,34 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   const renderCartProduct = ({ item }) => {
     return (
-      <View>
-        <TextSemiBold> {item.name} : <TextRegular> {item.quantity} </TextRegular>
-        <>
-          <Pressable
-            onPress={() => {
-              item.quantity = item.quantity + 1
-              const newOrderData = { ...orderData }
-              setOrderData(newOrderData)
-            }}>
-            <TextRegular>+</TextRegular>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              if (item.quantity !== 1) {
+      <View style={styles.cartProduct}>
+        <TextSemiBold> {item.name} : <TextRegular> {item.quantity}{'\t'}</TextRegular></TextSemiBold>
+        <View style={{ height: 35 }}>
+          <View style={{ flex: 1, flexDirection: 'row' }}>
+              <Pressable
+              style={[styles.pressButton, { width: 35, margin: 1 }]}
+              onPress={() => {
+                item.quantity = item.quantity + 1
+                const newOrderData = { ...orderData }
+                setOrderData(newOrderData)
+              }}>
+                <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>+</TextSemiBold>
+              </Pressable>
+              <Pressable
+              style={[styles.pressButton, { width: 35, margin: 1 }]}
+              onPress={() => {
+                if (item.quantity === 1) {
+                  orderData.products.splice(orderData.products.indexOf(item), 1)
+                }
                 item.quantity = item.quantity - 1
-              } else {
-                orderData.products.splice(orderData.products.indexOf(item))
-              }
-              const newOrderData = { ...orderData }
-              setOrderData(newOrderData)
-            }}>
-            <TextRegular>-</TextRegular>
-          </Pressable>
-          </>
-        </TextSemiBold>
+                const newOrderData = { ...orderData }
+                setOrderData(newOrderData)
+              }}>
+                <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
+              </Pressable>
+          </View>
+        </View>
+
       </View>
     )
   }
@@ -96,9 +100,8 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           { loggedInUser &&
         <View style={{ height: 80 }}>
           <View style={{ flex: 1, flexDirection: 'column' }}>
-            <View style={{ backgroundColor: GlobalStyles.brandPrimary, flex: 1, justifyContent: 'center', borderRadius: 5 }}>
               <Pressable
-              style={{ width: 30, justifyContent: 'center' }}
+              style={[styles.pressButton, { height: 30, width: 30 }]}
               onPress={() => {
                 if (!item.availability) {
                   return
@@ -119,24 +122,21 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               }}>
                 <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>+</TextSemiBold>
               </Pressable>
-            </View>
             <View style={{ flex: 1, justifyContent: 'space-evenly', alignItems: 'center ' }}>
               <TextSemiBold>
                 {itemsSelected}
               </TextSemiBold>
             </View>
-            <View style={{ backgroundColor: GlobalStyles.brandPrimary, flex: 1, justifyContent: 'center', borderRadius: 5 }}>
               <Pressable
-              style={{ width: 30, justifyContent: 'center' }}
+              style={[styles.pressButton, { height: 30, width: 30 }]}
               onPress={() => {
                 for (let i = 0; i < orderData.products.length; i++) {
                   const product = orderData.products[i]
                   if (product.productId === item.id) {
-                    if (product.quantity !== 1) {
-                      product.quantity = product.quantity - 1
-                    } else {
-                      orderData.products.splice(i)
+                    if (product.quantity === 1) {
+                      orderData.products.splice(i, 1)
                     }
+                    product.quantity = product.quantity - 1
                   }
                 }
                 const newOrderData = { ...orderData }
@@ -144,7 +144,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               }}>
                 <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
               </Pressable>
-            </View>
           </View>
         </View>
         }
@@ -187,53 +186,41 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   return (
     <ScrollView>
-      <FlatList
-        ListHeaderComponent={renderHeader}
-      />
-      <View style={{ flexDirection: 'row' }}>
-        <View style={[{ flex: 2 }]}></View>
+      {
+        renderHeader()
+      }
+      <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
         <Pressable
-        style={[styles.button, { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+          style={[styles.pressButton, { width: 60, margin: 10, padding: 5, height: 60 }]}
         onPress={() => {
           setShowOrder(showOrder === 0 ? 1 : 0)
         }}>
 
-          {
-            showOrder === 0 &&
-            <TextSemiBold style={styles.buttonText}>
-            Show Order details
-            </TextSemiBold>
-          }
-
-          {
-            showOrder === 1 &&
-            <TextSemiBold style={styles.buttonText}>
-            Hide order details
-            </TextSemiBold>
-          }
+          <Image style={styles.shoppingCart} source={shoppingCart} />
 
         </Pressable>
-        <View style={[{ flex: 2 }]}></View>
       </View>
 
       {
         showOrder === 1 &&
-        <FlatList
-        style={{ marginVertical: 20 }}
-        data = {orderData.products}
-        contentContainerStyle={styles.contentContainer}
-        renderItem={renderCartProduct}
-        scrollEnabled={false}
-        keyExtractor={item => item.productId.toString()}
-        ListEmptyComponent={renderEmptyOrder}
-        />
+        <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
+          <FlatList
+          style={styles.cartBox}
+          data = {orderData.products}
+          contentContainerStyle={styles.contentContainer}
+          renderItem={renderCartProduct}
+          scrollEnabled={false}
+          keyExtractor={item => item.productId.toString()}
+          ListEmptyComponent={renderEmptyOrder}
+          />
+        </View>
       }
       <FlatList
-          ListEmptyComponent={renderEmptyProductsList}
-          data={restaurant.products}
-          renderItem={renderProduct}
-          keyExtractor={item => item.id.toString()}
-        />
+      ListEmptyComponent={renderEmptyProductsList}
+      data={restaurant.products}
+      renderItem={renderProduct}
+      keyExtractor={item => item.id.toString()}
+      />
    </ScrollView>
   )
 }
@@ -244,13 +231,26 @@ const styles = StyleSheet.create({
     alignItems: 'left',
     margin: 20
   },
-  container: {
-    flex: 1
+  pressButton: {
+    backgroundColor: GlobalStyles.brandPrimary,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5
   },
-  row: {
-    padding: 15,
-    marginBottom: 5,
-    backgroundColor: GlobalStyles.brandSecondary
+  cartProduct: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 230,
+    justifyContent: 'space-between',
+    margin: 15
+  },
+  cartBox: {
+    marginBottom: 10,
+    marginRight: 5,
+    padding: 10,
+    borderRadius: 15,
+    backgroundColor: 'white'
   },
   restaurantHeaderContainer: {
     height: 250,
@@ -262,11 +262,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
-  },
-  buttonText: {
-    textAlign: 'center',
-    color: 'white'
+    alignItems: 'start'
   },
   imageBackground: {
     flex: 1,
@@ -277,6 +273,11 @@ const styles = StyleSheet.create({
     height: 100,
     width: 100,
     margin: 10
+  },
+  shoppingCart: {
+    height: 50,
+    width: 50,
+    margin: 5
   },
   description: {
     color: 'white'
@@ -289,39 +290,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     padding: 50
   },
-  button: {
-    borderRadius: 8,
-    height: 40,
-    margin: 12,
-    padding: 10,
-    width: '100%',
-    backgroundColor: GlobalStyles.brandPrimary
-  },
-  text: {
-    fontSize: 16,
-    color: 'white',
-    alignSelf: 'center',
-    marginLeft: 5
-  },
   availability: {
     textAlign: 'right',
     marginRight: 5,
     color: GlobalStyles.brandSecondary
-  },
-  actionButton: {
-    borderRadius: 8,
-    height: 40,
-    marginTop: 12,
-    margin: '1%',
-    padding: 10,
-    alignSelf: 'center',
-    flexDirection: 'column',
-    width: '50%'
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    bottom: 5,
-    position: 'absolute',
-    width: '90%'
   }
 })
