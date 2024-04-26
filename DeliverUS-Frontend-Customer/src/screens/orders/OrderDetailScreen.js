@@ -9,6 +9,7 @@ import TextSemiBold from '../../components/TextSemibold'
 import { showMessage } from 'react-native-flash-message'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import defaultProductImage from '../../../assets/product.jpeg'
+import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 
 export default function OrderDetailScreen ({ navigation, route }) {
   const [order, setOrder] = useState([])
@@ -63,9 +64,9 @@ export default function OrderDetailScreen ({ navigation, route }) {
   const renderHeader = () => {
     return (
       <View>
-        <ImageBackground source={(restaurant?.heroImage) ? { uri: process.env.API_BASE_URL + '/' + restaurant.heroImage, cache: 'force-cache' } : undefined} style={styles.imageBackground}>
+        <ImageBackground source={(restaurant?.heroImage) ? { uri: process.env.API_BASE_URL + '/' + restaurant.heroImage, cache: 'force-cache' } : restaurantBackground} style={styles.imageBackground}>
           <View style={styles.restaurantHeaderContainer}>
-            <Image style={styles.image} source={restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + restaurant.logo, cache: 'force-cache' } : undefined} />
+            <Image style={styles.image} source={restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + restaurant.logo, cache: 'force-cache' } : restaurantBackground} />
               <View style={[{ flexDirection: 'column' }]}>
                 <TextSemiBold textStyle={styles.textTitle}>{restaurant.name}</TextSemiBold>
                 <TextSemiBold textStyle={styles.subtext}>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandSecondaryTap }}>{order.price}€</TextSemiBold></TextSemiBold>
