@@ -1,23 +1,22 @@
-import React, { useEffect, useState, useContext } from 'react'
-import { StyleSheet, FlatList } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, FlatList, View, Pressable, ImageBackground, Image, TimePickerAndroid } from 'react-native'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
+import { brandPrimary, brandPrimaryTap } from '../../styles/GlobalStyles'
 import { getAll } from '../../api/OrderEndPoints'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import { showMessage } from 'react-native-flash-message'
 import ImageCard from '../../components/ImageCard'
 import restaurantLogo from '../../../assets/logo.png'
-import { AuthorizationContext } from '../../context/AuthorizationContext'
 
 export default function OrdersScreen ({ navigation, route }) {
-  const { loggedInUser } = useContext(AuthorizationContext)
   const [orders, setOrders] = useState([])
 
   useEffect(() => {
     async function fetchOrders () {
       try {
         const fetchedOrders = await getAll()
-        fetchedOrders.sort((a, b) => new Date(b.deliveredAt) - new Date(a.deliveredAt))
+        fetchedOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         setOrders(fetchedOrders)
       } catch (error) {
         showMessage({
@@ -29,10 +28,9 @@ export default function OrdersScreen ({ navigation, route }) {
       }
     }
     fetchOrders()
-  }, [route, loggedInUser])
+  }, [route])
 
   const renderOrder = ({ item }) => {
-    // TODO: add some more properties and reorder them
     return (
       <ImageCard
       imageUri = {item.restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + item.restaurant.logo } : restaurantLogo}
@@ -48,7 +46,6 @@ export default function OrdersScreen ({ navigation, route }) {
         item.deliveredAt &&
         <>
         <TextRegular>Order date: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.deliveredAt).slice(0, 10)}</TextRegular></TextRegular>
-        <TextRegular>Deliver time: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.deliveredAt).slice(11, 19)}</TextRegular></TextRegular>
         </>
       }
 
@@ -56,7 +53,6 @@ export default function OrdersScreen ({ navigation, route }) {
         item.sentAt && !item.deliveredAt &&
         <>
         <TextRegular>Order date: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.sentAt).slice(0, 10)}</TextRegular></TextRegular>
-        <TextRegular>Shipping time: <TextRegular textStyle={{ color: GlobalStyles.flashStyle }}>{String(item.sentAt).slice(11, 19)}</TextRegular></TextRegular>
         </>
       }
 
@@ -66,8 +62,18 @@ export default function OrdersScreen ({ navigation, route }) {
     )
   }
 
+  const renderOrdersHeader = () => {
+    return (
+      <View>
+        <View style={styles.FRHeader}>
+          <TextSemiBold textStyle={[styles.text, { margin: 20 }]}>
+            All your orders
+          </TextSemiBold>
+        </View>
+      </View>
+    )
+  }
   const renderEmptyOrdersList = () => {
-    // TODO: Center, bold text.
     return (
       <TextRegular textStyle={styles.emptyList}>
         No orders were retreived.
@@ -79,6 +85,7 @@ export default function OrdersScreen ({ navigation, route }) {
       data = {orders}
       renderItem={renderOrder}
       keyExtractor={item => item.id.toString()}
+      ListHeaderComponent={renderOrdersHeader}
       ListEmptyComponent={renderEmptyOrdersList}
       />
   )
@@ -99,8 +106,8 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   text: {
-    fontSize: 16,
-    color: 'white',
+    fontSize: 18,
+    color: 'black',
     textAlign: 'center'
   }
 })
