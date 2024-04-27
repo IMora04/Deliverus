@@ -178,9 +178,11 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   const renderEmptyOrder = () => {
     return (
+      <View style={styles.contentContainer}>
       <TextRegular>
         No products have been selected
       </TextRegular>
+      </View>
     )
   }
 
@@ -189,9 +191,9 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
       {
         renderHeader()
       }
-      <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
+      <View style={{ flexDirection: 'row', alignSelf: 'flex-end', marginTop: -80 }}>
         <Pressable
-          style={[styles.pressButton, { width: 60, margin: 10, padding: 5, height: 60 }]}
+          style={[styles.pressButton, { width: 60, margin: 10, padding: 5, height: 60, backgroundColor: GlobalStyles.brandBlue }]}
         onPress={() => {
           setShowOrder(showOrder === 0 ? 1 : 0)
         }}>
@@ -201,26 +203,36 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
         </Pressable>
       </View>
 
-      {
-        showOrder === 1 &&
-        <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
-          <FlatList
-          style={styles.cartBox}
-          data = {orderData.products}
-          contentContainerStyle={styles.contentContainer}
-          renderItem={renderCartProduct}
-          scrollEnabled={false}
-          keyExtractor={item => item.productId.toString()}
-          ListEmptyComponent={renderEmptyOrder}
-          />
-        </View>
-      }
+      <View style={{ flexDirection: 'row' }}>
+
       <FlatList
       ListEmptyComponent={renderEmptyProductsList}
       data={restaurant.products}
       renderItem={renderProduct}
       keyExtractor={item => item.id.toString()}
       />
+
+      {
+        showOrder === 1 &&
+        <View style={styles.cartBox}>
+          <FlatList
+          style={styles.cartList}
+          data = {orderData.products}
+          contentContainerStyle={styles.contentContainer}
+          renderItem={renderCartProduct}
+          scrollEnabled={false}
+          keyExtractor={item => item.productId.toString()}
+          ListEmptyComponent={renderEmptyOrder}
+          >
+          </FlatList>
+          <Pressable
+          style={{ alignSelf: 'center', marginBottom: 10 }}>
+            <TextSemiBold>Confirm Order</TextSemiBold>
+          </Pressable>
+        </View>
+      }
+
+      </View>
    </ScrollView>
   )
 }
@@ -241,16 +253,26 @@ const styles = StyleSheet.create({
   cartProduct: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 230,
+    width: 270,
     justifyContent: 'space-between',
-    margin: 15
+    marginHorizontal: 15,
+    marginVertical: 5
   },
   cartBox: {
-    marginBottom: 10,
-    marginRight: 5,
-    padding: 10,
+    flexDirection: 'column',
+    alignSelf: 'flex-start',
+    zIndex: 1,
+    marginLeft: -325,
+    backgroundColor: GlobalStyles.brandBlue,
+    borderColor: 'black',
     borderRadius: 15,
-    backgroundColor: 'white'
+    marginRight: 5,
+    marginTop: 5
+  },
+  cartList: {
+    width: 320,
+    padding: 10,
+    borderRadius: 15
   },
   restaurantHeaderContainer: {
     height: 250,
@@ -261,7 +283,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'start'
   },
   imageBackground: {
