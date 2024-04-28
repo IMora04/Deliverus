@@ -3,6 +3,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, ScrollView } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { getDetail } from '../../api/RestaurantEndpoints'
+import { create } from '../../api/OrderEndpoints'
 import ImageCard from '../../components/ImageCard'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
@@ -14,12 +15,15 @@ import shoppingCart from '../../../assets/shoppingCart.png'
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const { loggedInUser } = useContext(AuthorizationContext)
   const [restaurant, setRestaurant] = useState({})
+  const [confirmed, setConfirmed] = useState(0)
+
   // TODO: Use user address
-  const [orderData, setOrderData] = useState({
+  const initialOrder = {
     restaurantId: restaurant.id,
     products: [],
     address: 'testAddress'
-  })
+  }
+  const [orderData, setOrderData] = useState(initialOrder)
   const [showOrder, setShowOrder] = useState(0)
 
   useEffect(() => {
@@ -193,7 +197,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
       }
       <View style={{ flexDirection: 'row', alignSelf: 'flex-end', marginTop: -80 }}>
         <Pressable
-          style={[styles.pressButton, { width: 60, margin: 10, padding: 5, height: 60, backgroundColor: GlobalStyles.brandBlue }]}
+          style={[styles.pressButton, { width: 60, margin: 10, padding: 5, height: 60, backgroundColor: GlobalStyles.brandSecondary }]}
         onPress={() => {
           setShowOrder(showOrder === 0 ? 1 : 0)
         }}>
@@ -226,7 +230,23 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           >
           </FlatList>
           <Pressable
-          style={{ alignSelf: 'center', marginBottom: 10 }}>
+          style={{ alignSelf: 'center', marginBottom: 10 }}
+          onPress={() => {
+            showMessage({
+              message: 'Order confirmed',
+              type: 'success',
+              style: GlobalStyles.flashStyle,
+              titleStyle: GlobalStyles.flashTextStyle
+            })
+            try {
+              create(orderData)
+            } catch (error) {
+              console.log(error)
+            }
+            setConfirmed(confirmed === 0 ? 1 : 0)
+            setOrderData(initialOrder)
+            setShowOrder(0)
+          }}>
             <TextSemiBold>Confirm Order</TextSemiBold>
           </Pressable>
         </View>
@@ -263,7 +283,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     zIndex: 1,
     marginLeft: -325,
-    backgroundColor: GlobalStyles.brandBlue,
+    backgroundColor: GlobalStyles.brandSecondary,
     borderColor: 'black',
     borderRadius: 15,
     marginRight: 5,
@@ -284,7 +304,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     justifyContent: 'flex-start',
-    alignItems: 'start'
+    alignItems: 'center'
   },
   imageBackground: {
     flex: 1,
