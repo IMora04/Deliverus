@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, ImageBackground, Image, FlatList } from 'react-native'
-import { getDetail } from '../../api/OrderEndPoints'
+import { getDetail } from '../../api/OrderEndpoints'
 import ImageCard from '../../components/ImageCard'
 import * as RestaurantEndpoints from '../../api/RestaurantEndpoints'
 import TextRegular from '../../components/TextRegular'
