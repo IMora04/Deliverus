@@ -1,13 +1,12 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, FlatList, View, Pressable, ScrollView } from 'react-native'
+import { StyleSheet, FlatList, View, Pressable, ScrollView, Dimensions } from 'react-native'
 import TextSemiBold from '../../components/TextSemibold'
 import TextRegular from '../../components/TextRegular'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import { getAll } from '../../api/RestaurantEndpoints'
 import { showMessage } from 'react-native-flash-message'
 import ImageCard from '../../components/ImageCard'
-import ImageCardHorizontal from '../../components/ImageCardHorizontal'
 import restaurantLogo from '../../../assets/logo.png'
 import productImage from '../../../assets/product.jpeg'
 import { getTopProducts } from '../../api/ProductEndpoints'
@@ -16,6 +15,24 @@ export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
   const [topProducts, setTopProducts] = useState([])
   const [showProducts, setShowProducts] = useState(0)
+
+  const windowDimensions = Dimensions.get('window')
+  const screenDimensions = Dimensions.get('screen')
+
+  const [dimensions, setDimensions] = useState({
+    window: windowDimensions,
+    screen: screenDimensions
+  })
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener(
+      'change',
+      ({ window, screen }) => {
+        setDimensions({ window, screen })
+      }
+    )
+    return () => subscription?.remove()
+  })
 
   useEffect(() => {
     async function fetchRestaurants () {
@@ -70,7 +87,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
 
   const renderProduct = ({ item }) => {
     return (
-      <ImageCardHorizontal
+      <ImageCard
       imageUri = {item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : productImage}
       title={item.name}
       onPress={() => {
@@ -79,7 +96,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
       >
       <TextRegular numberOfLines={2}>{item.description}</TextRegular>
       <TextSemiBold>Restaurant: <TextSemiBold textStyle={{ color: 'black' }}>{item.restaurant.name}</TextSemiBold></TextSemiBold>
-      </ImageCardHorizontal>
+      </ImageCard>
     )
   }
 
@@ -141,7 +158,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
       style={{ marginVertical: 20 }}
       horizontal = {true}
       data = {topProducts}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={[styles.contentContainer, { flexDirection: dimensions.window.width > 450 ? 'row' : 'column' }]}
       renderItem={renderProduct}
       scrollEnabled={false}
       keyExtractor={item => item.id.toString()}
