@@ -21,7 +21,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   const initialOrder = {
     restaurantId: restaurant.id,
     products: [],
-    address: 'testAddress'
+    address: loggedInUser.address
   }
   const [orderData, setOrderData] = useState(initialOrder)
   const [showOrder, setShowOrder] = useState(0)
