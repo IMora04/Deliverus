@@ -8,12 +8,17 @@ import { showMessage } from 'react-native-flash-message'
 import ImageCard from '../../components/ImageCard'
 import restaurantLogo from '../../../assets/logo.png'
 import { AuthorizationContext } from '../../context/AuthorizationContext'
+import { useIsFocused } from '@react-navigation/native'
 
 export default function OrdersScreen ({ navigation, route }) {
   const { loggedInUser } = useContext(AuthorizationContext)
   const [orders, setOrders] = useState([])
+  const isFocused = useIsFocused()
 
   useEffect(() => {
+    if (!isFocused) {
+      return
+    }
     async function fetchOrders () {
       try {
         const fetchedOrders = await getAll()
@@ -29,7 +34,7 @@ export default function OrdersScreen ({ navigation, route }) {
       }
     }
     fetchOrders()
-  }, [route, loggedInUser])
+  }, [isFocused, loggedInUser])
 
   const renderOrder = ({ item }) => {
     return (
