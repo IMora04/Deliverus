@@ -11,20 +11,39 @@ import * as GlobalStyles from '../../styles/GlobalStyles'
 import defaultProductImage from '../../../assets/product.jpeg'
 import { AuthorizationContext } from '../../context/AuthorizationContext'
 import shoppingCart from '../../../assets/shoppingCart.png'
+import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
+import logo from '../../../assets/logo.png'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const { loggedInUser } = useContext(AuthorizationContext)
-  const [restaurant, setRestaurant] = useState({})
-  const [confirmed, setConfirmed] = useState(0)
+  const [restaurant, setRestaurant] = useState([])
+  const [confirmed, setConfirmed] = useState(0) // TO BE USED
+  const [productsByCategory, setProductsByCategory] = useState([])
+  const [showOrder, setShowOrder] = useState(0)
+  const [categories, setCategories] = useState(null)
 
-  // TODO: Use user address
   const initialOrder = {
     restaurantId: restaurant.id,
     products: [],
-    address: loggedInUser.address
+    address: loggedInUser?.address
   }
+
   const [orderData, setOrderData] = useState(initialOrder)
-  const [showOrder, setShowOrder] = useState(0)
+
+  useEffect(() => {
+    if (!restaurant.products || restaurant.products.length === 0) {
+      return
+    }
+    const prods = []
+    const categories = new Set()
+    for (const i in restaurant.products) {
+      const name = restaurant.products[i].productCategory.name
+      categories.add(name)
+      prods[name] = prods[name] ? [prods[name], restaurant.products[i]].flatMap(m => m) : [restaurant.products[i]]
+    }
+    setCategories(categories)
+    setProductsByCategory(prods)
+  }, [restaurant])
 
   useEffect(() => {
     fetchRestaurantDetail()
@@ -39,10 +58,10 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           <TextSemiBold>FR4: Confirm or dismiss new order.</TextSemiBold>
           <TextRegular>Customers will be able to confirm or dismiss the order before sending it to the backend.</TextRegular>
         </View>
-        <ImageBackground source={(restaurant?.heroImage) ? { uri: process.env.API_BASE_URL + '/' + restaurant.heroImage, cache: 'force-cache' } : undefined} style={styles.imageBackground}>
+        <ImageBackground source={(restaurant?.heroImage) ? { uri: process.env.API_BASE_URL + '/' + restaurant.heroImage, cache: 'force-cache' } : restaurantBackground} style={styles.imageBackground}>
           <View style={styles.restaurantHeaderContainer}>
             <TextSemiBold textStyle={styles.textTitle}>{restaurant.name}</TextSemiBold>
-            <Image style={styles.image} source={restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + restaurant.logo, cache: 'force-cache' } : undefined} />
+            <Image style={styles.image} source={restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + restaurant.logo, cache: 'force-cache' } : logo} />
             <TextRegular textStyle={styles.description}>{restaurant.description}</TextRegular>
             <TextRegular textStyle={styles.description}>{restaurant.restaurantCategory ? restaurant.restaurantCategory.name : ''}</TextRegular>
           </View>
@@ -190,6 +209,23 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     )
   }
 
+  const renderOneCategory = ({ item }) => {
+    return (
+      <FlatList
+      ListHeaderComponent={
+        <TextSemiBold textStyle={{ fontSize: 20 }}>
+          · {item}
+        </TextSemiBold>
+      }
+      ListHeaderComponentStyle={{ margin: 20 }}
+      ListEmptyComponent={renderEmptyProductsList}
+      data={productsByCategory[item]}
+      renderItem={renderProduct}
+      keyExtractor={item => item.name}
+      />
+    )
+  }
+
   return (
     <ScrollView>
       {
@@ -209,11 +245,15 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
       <View style={{ flexDirection: 'row' }}>
 
+      {
+        console.log(categories ? Array.from(categories) : [])
+      }
+
       <FlatList
       ListEmptyComponent={renderEmptyProductsList}
-      data={restaurant.products}
-      renderItem={renderProduct}
-      keyExtractor={item => item.id.toString()}
+      data={categories ? Array.from(categories) : []}
+      renderItem={renderOneCategory}
+      keyExtractor={item => item}
       />
 
       {
