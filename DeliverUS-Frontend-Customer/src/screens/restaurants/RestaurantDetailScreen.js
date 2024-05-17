@@ -100,6 +100,9 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               }}>
                 <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
               </Pressable>
+              <View style={{ width: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
+              </View>
           </View>
         </View>
 
@@ -129,7 +132,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               }
             }
             if (!found) {
-              orderData.products.push({ productId: item.id, quantity: 1, name: item.name })
+              orderData.products.push({ productId: item.id, quantity: 1, name: item.name, price: item.price })
             }
             const newOrderData = { ...orderData }
             setOrderData(newOrderData)
@@ -158,6 +161,9 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           }}>
             <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
           </Pressable>
+          <View style={{ width: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
+              </View>
         </View>
       </View>
     )
@@ -319,7 +325,7 @@ const styles = StyleSheet.create({
   cartProduct: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 270,
+    width: 300,
     justifyContent: 'space-between',
     marginHorizontal: 15,
     marginVertical: 5
@@ -328,7 +334,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignSelf: 'flex-start',
     zIndex: 1,
-    marginLeft: -325,
+    marginLeft: -355,
     backgroundColor: GlobalStyles.brandSecondary,
     borderColor: 'black',
     borderRadius: 15,
@@ -336,7 +342,7 @@ const styles = StyleSheet.create({
     marginTop: 5
   },
   cartList: {
-    width: 320,
+    width: 350,
     padding: 10,
     borderRadius: 15
   },
