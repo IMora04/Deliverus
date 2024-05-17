@@ -43,7 +43,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
         ? prods[categoryName].concat(restaurant.products[i])
         : [restaurant.products[i]]
     }
-    console.log(prods)
     setCategories(categories)
     setProductsByCategory(prods)
   }, [restaurant])
