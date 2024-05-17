@@ -259,7 +259,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
       }
       ListHeaderComponentStyle={{ margin: 20 }}
       ListEmptyComponent={renderEmptyProductsList}
-      data={productsByCategory[item].concat(productsByCategory[item]).concat(productsByCategory[item])}
+      data={productsByCategory[item]}
       numColumns={numColumns}
       renderItem={renderProduct}
       key={numColumns}
