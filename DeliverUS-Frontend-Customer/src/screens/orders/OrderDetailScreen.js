@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, ImageBackground, Image, FlatList, Pressable } from 'react-native'
-import { getDetail } from '../../api/OrderEndpoints'
+import { getDetail, edit } from '../../api/OrderEndpoints'
 import ImageCard from '../../components/ImageCard'
 import * as RestaurantEndpoints from '../../api/RestaurantEndpoints'
 import TextRegular from '../../components/TextRegular'
@@ -10,6 +10,7 @@ import { showMessage } from 'react-native-flash-message'
 import * as GlobalStyles from '../../styles/GlobalStyles'
 import defaultProductImage from '../../../assets/product.jpeg'
 import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
+import ConfirmationModal from '../../components/ConfirmationModal'
 
 export default function OrderDetailScreen ({ navigation, route }) {
   const [order, setOrder] = useState([])
@@ -21,6 +22,15 @@ export default function OrderDetailScreen ({ navigation, route }) {
     fetchOrderDetail()
   }, [route])
 
+  useEffect(() => {
+    if (editing === 'confirmed') {
+      console.log(editedOrder)
+      edit(order.id, editedOrder)
+      fetchOrderDetail()
+      setEditing('ready')
+    }
+  }, [editing])
+
   const fetchOrderDetail = async () => {
     try {
       const fetchedOrder = await getDetail(route.params.id)
@@ -28,14 +38,12 @@ export default function OrderDetailScreen ({ navigation, route }) {
       const fetchedRestaurant = await RestaurantEndpoints.getDetail(fetchedOrder.restaurantId)
       setRestaurant(fetchedRestaurant)
       const initialOrder = {
-        restaurantId: fetchedRestaurant.id,
         products: [],
         address: fetchedOrder.address
       }
       for (const p in fetchedOrder.products) {
         const product = fetchedOrder.products[p]
-        console.log(product)
-        initialOrder.products.push({ productId: product.id, quantity: product.OrderProducts.quantity, name: product.name })
+        initialOrder.products.push({ productId: product.id, quantity: product.OrderProducts.quantity, name: product.name, price: product.price })
       }
       setEditedOrder(initialOrder)
     } catch (error) {
@@ -134,7 +142,7 @@ export default function OrderDetailScreen ({ navigation, route }) {
               }
             }
             if (!found) {
-              editedOrder.products.push({ productId: item.id, quantity: 1, name: item.name })
+              editedOrder.products.push({ productId: item.id, quantity: 1, name: item.name, price: item.price })
             }
             const newOrderData = { ...editedOrder }
             setEditedOrder(newOrderData)
@@ -196,6 +204,26 @@ export default function OrderDetailScreen ({ navigation, route }) {
               Edit order
             </TextSemiBold>
           </Pressable>
+        }
+        {
+          editing === 'confirming' &&
+          <ConfirmationModal
+          onCancel={() => { setEditing('editing') }}
+          onConfirm={() => { setEditing('confirmed') }}
+          >
+          <FlatList
+          data={editedOrder.products}
+          renderItem={ ({ item }) => (
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+              <View style={{ flex: 1, width: 350 }}>
+                <TextRegular textStyle={{ fontSize: 15 }}>
+                  {item.quantity} {item.name}: {item.price}
+                </TextRegular>
+              </View>
+            </View>
+          )}
+          />
+          </ConfirmationModal>
         }
         </View>
       }

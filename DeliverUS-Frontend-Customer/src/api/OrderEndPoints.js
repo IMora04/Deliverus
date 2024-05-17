@@ -11,8 +11,8 @@ function create (data) {
   return post('orders', data)
 }
 
-function edit (id) {
-  return put(`orders/${id}`)
+function edit (id, data) {
+  return put(`orders/${id}`, data)
 }
 
 export { getAll, getDetail, create, edit }
