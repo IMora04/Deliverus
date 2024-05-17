@@ -58,7 +58,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   useEffect(() => {
     const windowSizePerCard = dimensions.window.width / 360
-    console.log(360 + ((dimensions.window.width - maxColumns * 360) / maxColumns))
     setColumnInfo({
       numColumns: windowSizePerCard > maxColumns ? maxColumns : Math.floor(windowSizePerCard),
       cardWidth: windowSizePerCard > maxColumns ? 350 + ((dimensions.window.width - maxColumns * 360) / maxColumns) : Math.floor(350 + (360 / Math.floor(windowSizePerCard)) * (windowSizePerCard - Math.floor(windowSizePerCard)))
@@ -318,8 +317,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           scrollEnabled={false}
           keyExtractor={item => item.productId.toString()}
           ListEmptyComponent={renderEmptyOrder}
-          >
-          </FlatList>
+          />
           <TextSemiBold style={{ alignSelf: 'center' }}>Total price: {totalPriceOrder(orderData.products)}€</TextSemiBold>
           <View style={{ flex: 1, flexDirection: 'row' }}>
             <Pressable

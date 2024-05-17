@@ -24,7 +24,6 @@ export default function OrderDetailScreen ({ navigation, route }) {
 
   useEffect(() => {
     if (editing === 'confirmed') {
-      console.log(editedOrder)
       edit(order.id, editedOrder)
       fetchOrderDetail()
       setEditing('ready')
