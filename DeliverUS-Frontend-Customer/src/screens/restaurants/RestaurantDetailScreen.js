@@ -13,6 +13,7 @@ import { AuthorizationContext } from '../../context/AuthorizationContext'
 import shoppingCart from '../../../assets/shoppingCart.png'
 import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 import logo from '../../../assets/logo.png'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const { loggedInUser } = useContext(AuthorizationContext)
@@ -30,7 +31,20 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     screen: screenDimensions
   })
 
-  const [numColumns, setNumColumns] = useState(1)
+  const [columnInfo, setColumnInfo] = useState({
+    numColumns: 1,
+    cardWidth: 350
+  })
+
+  const [maxColumns, setMaxColumns] = useState(10)
+
+  const initialOrder = {
+    restaurantId: restaurant.id,
+    products: [],
+    address: loggedInUser?.address
+  }
+
+  const [orderData, setOrderData] = useState(initialOrder)
 
   useEffect(() => {
     const subscription = Dimensions.addEventListener(
@@ -43,16 +57,13 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   })
 
   useEffect(() => {
-    setNumColumns(Math.floor(dimensions.window.width / 360))
-  }, [dimensions])
-
-  const initialOrder = {
-    restaurantId: restaurant.id,
-    products: [],
-    address: loggedInUser?.address
-  }
-
-  const [orderData, setOrderData] = useState(initialOrder)
+    const windowSizePerCard = dimensions.window.width / 360
+    console.log(360 + ((dimensions.window.width - maxColumns * 360) / maxColumns))
+    setColumnInfo({
+      numColumns: windowSizePerCard > maxColumns ? maxColumns : Math.floor(windowSizePerCard),
+      cardWidth: windowSizePerCard > maxColumns ? 350 + ((dimensions.window.width - maxColumns * 360) / maxColumns) : Math.floor(350 + (360 / Math.floor(windowSizePerCard)) * (windowSizePerCard - Math.floor(windowSizePerCard)))
+    })
+  }, [dimensions, maxColumns])
 
   useEffect(() => {
     if (!restaurant.products || restaurant.products.length === 0) {
@@ -68,6 +79,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
       }
       prods[categoryName].push(restaurant.products[i])
     }
+    setMaxColumns(Math.max(...Object.values(prods).flatMap(l => l.length)))
     setCategories(categories)
     setProductsByCategory(prods)
   }, [restaurant])
@@ -104,7 +116,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                 const newOrderData = { ...orderData }
                 setOrderData(newOrderData)
               }}>
-                <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>+</TextSemiBold>
+                <MaterialCommunityIcons name='plus' color={'white'} size={15}/>
               </Pressable>
               <Pressable
               style={[styles.pressButton, { width: 35, margin: 1 }]}
@@ -116,7 +128,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                 const newOrderData = { ...orderData }
                 setOrderData(newOrderData)
               }}>
-                <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
+                <MaterialCommunityIcons name='minus' color={'white'} size={15}/>
               </Pressable>
               <View style={{ width: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                 <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
@@ -154,12 +166,12 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
             const newOrderData = { ...orderData }
             setOrderData(newOrderData)
           }}>
-            <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>+</TextSemiBold>
+                <MaterialCommunityIcons name='plus' color={'white'} size={15}/>
           </Pressable>
           <View style={{ flex: 1, justifyContent: 'space-evenly', alignItems: 'center ' }}>
-            <TextSemiBold>
+            <TextRegular textStyle={{ fontSize: 15 }}>
               {itemsSelected}
-            </TextSemiBold>
+            </TextRegular>
           </View>
           <Pressable
           style={[styles.pressButton, { height: 30, width: 30 }]}
@@ -176,7 +188,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
             const newOrderData = { ...orderData }
             setOrderData(newOrderData)
           }}>
-            <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
+                <MaterialCommunityIcons name='minus' color={'white'} size={15}/>
           </Pressable>
         </View>
       </View>
@@ -185,7 +197,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   const renderProduct = ({ item }) => {
     return (
-      <View style={{ width: 350, marginHorizontal: 5 }}>
+      <View style={{ width: columnInfo.cardWidth, marginHorizontal: 5 }}>
         <ImageCard
           imageUri={item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : defaultProductImage}
           title={item.name}
@@ -260,9 +272,9 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
       ListHeaderComponentStyle={{ margin: 20 }}
       ListEmptyComponent={renderEmptyProductsList}
       data={productsByCategory[item]}
-      numColumns={numColumns}
+      numColumns={columnInfo.numColumns}
       renderItem={renderProduct}
-      key={numColumns}
+      key={columnInfo.numColumns}
       />
     )
   }
@@ -272,18 +284,20 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
       {
         renderHeader()
       }
-      <View style={{ flexDirection: 'row', alignSelf: 'flex-end', marginTop: -80 }}>
-        <Pressable
-          style={[styles.pressButton, { width: 60, margin: 10, padding: 5, height: 60, backgroundColor: GlobalStyles.brandSecondary }]}
-        onPress={() => {
-          setShowOrder(!showOrder)
-        }}>
+      {
+        loggedInUser &&
+        <View style={{ flexDirection: 'row', alignSelf: 'flex-end', marginTop: -80 }}>
+          <Pressable
+            style={[styles.pressButton, { width: 60, margin: 10, padding: 5, height: 60, backgroundColor: GlobalStyles.brandSecondary }]}
+          onPress={() => {
+            setShowOrder(!showOrder)
+          }}>
 
-          <Image style={styles.shoppingCart} source={shoppingCart} />
+            <Image style={styles.shoppingCart} source={shoppingCart} />
 
-        </Pressable>
-      </View>
-
+          </Pressable>
+        </View>
+      }
       <View style={{ flexDirection: 'row' }}>
 
       <FlatList
@@ -343,7 +357,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               } catch (error) {
                 console.log(error)
               }
-              setShowOrder(0)
+              setShowOrder(false)
             }}>
               <TextSemiBold>Dismiss Order</TextSemiBold>
             </Pressable>
