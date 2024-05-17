@@ -207,6 +207,14 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     )
   }
 
+  const totalPriceOrder = (products) => {
+    let totPrice = 0
+    for (const i in products) {
+      totPrice += products[i].price * products[i].quantity
+    }
+    return totPrice
+  }
+
   const renderEmptyProductsList = () => {
     return (
       <TextRegular textStyle={styles.emptyList}>
@@ -298,26 +306,48 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           ListEmptyComponent={renderEmptyOrder}
           >
           </FlatList>
-          <Pressable
-          style={{ alignSelf: 'center', marginBottom: 10 }}
-          onPress={() => {
-            showMessage({
-              message: 'Order confirmed',
-              type: 'success',
-              style: GlobalStyles.flashStyle,
-              titleStyle: GlobalStyles.flashTextStyle
-            })
-            try {
-              create(orderData)
-            } catch (error) {
-              console.log(error)
-            }
-            setConfirmed(confirmed === 0 ? 1 : 0)
-            setOrderData(initialOrder)
-            setShowOrder(false)
-          }}>
-            <TextSemiBold>Confirm Order</TextSemiBold>
-          </Pressable>
+          <TextSemiBold style={{ alignSelf: 'center' }}>Total price: {totalPriceOrder(orderData.products)}€</TextSemiBold>
+          <View style={{ flex: 1, flexDirection: 'row' }}>
+            <Pressable
+            style={[styles.pressButton, { width: 35, margin: 1 }]}
+            onPress={() => {
+              showMessage({
+                message: 'Order confirmed',
+                type: 'success',
+                style: GlobalStyles.flashStyle,
+                titleStyle: GlobalStyles.flashTextStyle
+              })
+              try {
+                create(orderData)
+              } catch (error) {
+                console.log(error)
+              }
+              setConfirmed(confirmed === 0 ? 1 : 0)
+              setOrderData(initialOrder)
+              setShowOrder(false)
+            }}>
+              <TextSemiBold>Confirm Order</TextSemiBold>
+            </Pressable>
+
+            <Pressable
+            style={[styles.pressButton, { width: 35, margin: 1 }]}
+            onPress={() => {
+              showMessage({
+                message: 'Order dismissed',
+                type: 'success',
+                style: GlobalStyles.flashStyle,
+                titleStyle: GlobalStyles.flashTextStyle
+              })
+              try {
+                setOrderData(initialOrder)
+              } catch (error) {
+                console.log(error)
+              }
+              setShowOrder(0)
+            }}>
+              <TextSemiBold>Dismiss Order</TextSemiBold>
+            </Pressable>
+          </View>
         </View>
       }
 
