@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import TextSemiBold from './TextSemibold'
 import * as GlobalStyles from '../styles/GlobalStyles'
 import TextRegular from './TextRegular'
-export default function DeleteModal (props) {
+export default function ConfirmationModal (props) {
   return (
     <Modal
     presentationStyle='overFullScreen'
