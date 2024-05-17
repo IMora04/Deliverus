@@ -34,13 +34,16 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     if (!restaurant.products || restaurant.products.length === 0) {
       return
     }
-    const prods = []
+    const prods = {}
     const categories = new Set()
     for (const i in restaurant.products) {
-      const name = restaurant.products[i].productCategory.name
-      categories.add(name)
-      prods[name] = prods[name] ? [prods[name], restaurant.products[i]].flatMap(m => m) : [restaurant.products[i]]
+      const categoryName = restaurant.products[i].productCategory.name
+      categories.add(categoryName)
+      prods[categoryName] = prods[categoryName]
+        ? prods[categoryName].concat(restaurant.products[i])
+        : [restaurant.products[i]]
     }
+    console.log(prods)
     setCategories(categories)
     setProductsByCategory(prods)
   }, [restaurant])
