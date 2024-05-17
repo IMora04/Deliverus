@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, ImageBackground, Image, FlatList } from 'react-native'
+import { StyleSheet, View, ImageBackground, Image, FlatList, Pressable } from 'react-native'
 import { getDetail } from '../../api/OrderEndpoints'
 import ImageCard from '../../components/ImageCard'
 import * as RestaurantEndpoints from '../../api/RestaurantEndpoints'
@@ -14,6 +14,8 @@ import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 export default function OrderDetailScreen ({ navigation, route }) {
   const [order, setOrder] = useState([])
   const [restaurant, setRestaurant] = useState([])
+  const [editing, setEditing] = useState('ready')
+  const [editedOrder, setEditedOrder] = useState({})
 
   useEffect(() => {
     fetchOrderDetail()
@@ -25,6 +27,17 @@ export default function OrderDetailScreen ({ navigation, route }) {
       setOrder(fetchedOrder)
       const fetchedRestaurant = await RestaurantEndpoints.getDetail(fetchedOrder.restaurantId)
       setRestaurant(fetchedRestaurant)
+      const initialOrder = {
+        restaurantId: fetchedRestaurant.id,
+        products: [],
+        address: fetchedOrder.address
+      }
+      for (const p in fetchedOrder.products) {
+        const product = fetchedOrder.products[p]
+        console.log(product)
+        initialOrder.products.push({ productId: product.id, quantity: product.OrderProducts.quantity, name: product.name })
+      }
+      setEditedOrder(initialOrder)
     } catch (error) {
       showMessage({
         message: `There was an error while retrieving order details (id ${route.params.id}). ${error}`,
@@ -77,14 +90,123 @@ export default function OrderDetailScreen ({ navigation, route }) {
     )
   }
 
+  const renderRestaurantProducts = ({ item }) => {
+    return (
+      <ImageCard
+        imageUri={item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : defaultProductImage}
+        title={item.name}
+      >
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1 }}>
+            <TextRegular numberOfLines={2}>{item.description}</TextRegular>
+            <TextSemiBold textStyle={styles.price}>{item.price.toFixed(2)}€</TextSemiBold>
+            {!item.availability &&
+              <TextSemiBold textStyle={styles.availability }>Not available</TextSemiBold>
+            }
+          </View>
+          {
+          renderOrderButtons({ item })
+          }
+        </View>
+      </ImageCard>
+    )
+  }
+
+  const renderOrderButtons = ({ item }) => {
+    const productInArray = editedOrder.products.find(p => p.productId === item.id)
+    const itemsSelected = productInArray ? productInArray.quantity : 0
+
+    return (
+      <View style={{ height: 80 }}>
+        <View style={{ flex: 1, flexDirection: 'column' }}>
+          <Pressable
+          style={[styles.pressButton, { height: 30, width: 30 }]}
+          onPress={() => {
+            if (!item.availability) {
+              return
+            }
+            let found = false
+            for (let i = 0; i < editedOrder.products.length; i++) {
+              const product = editedOrder.products[i]
+              if (product.productId === item.id) {
+                product.quantity = product.quantity + 1
+                found = true
+              }
+            }
+            if (!found) {
+              editedOrder.products.push({ productId: item.id, quantity: 1, name: item.name })
+            }
+            const newOrderData = { ...editedOrder }
+            setEditedOrder(newOrderData)
+          }}>
+            <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>+</TextSemiBold>
+          </Pressable>
+          <View style={{ flex: 1, justifyContent: 'space-evenly', alignItems: 'center ' }}>
+            <TextSemiBold>
+              {itemsSelected}
+            </TextSemiBold>
+          </View>
+          <Pressable
+          style={[styles.pressButton, { height: 30, width: 30 }]}
+          onPress={() => {
+            for (let i = 0; i < editedOrder.products.length; i++) {
+              const product = editedOrder.products[i]
+              if (product.productId === item.id) {
+                if (product.quantity === 1) {
+                  editedOrder.products.splice(i, 1)
+                }
+                product.quantity = product.quantity - 1
+              }
+            }
+            const newOrderData = { ...editedOrder }
+            setEditedOrder(newOrderData)
+          }}>
+            <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
+          </Pressable>
+        </View>
+      </View>
+    )
+  }
+
   return (
-    <FlatList
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmptyProductsList}
-        data={order.products}
-        renderItem={renderProduct}
-        keyExtractor={item => item.id.toString()}
+    <>
+    {
+      renderHeader()
+    }
+      <>
+      {
+        order.status === 'pending' &&
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+        {
+          editing === 'editing' &&
+          <Pressable
+          onPress={() => { setEditing('confirming') }}
+          style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandSecondary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+            <TextSemiBold textStyle={{ textAlign: 'center' }}>
+              Confirm edition
+            </TextSemiBold>
+          </Pressable>
+        }
+        {
+          editing === 'ready' &&
+          <Pressable
+          onPress={() => { setEditing('editing') }}
+          style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandSecondary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+            <TextSemiBold textStyle={{ textAlign: 'center' }}>
+              Edit order
+            </TextSemiBold>
+          </Pressable>
+        }
+        </View>
+      }
+      <FlatList
+          ListEmptyComponent={renderEmptyProductsList}
+          data={editing !== 'ready' ? restaurant.products : order.products}
+          renderItem={editing !== 'ready' ? renderRestaurantProducts : renderProduct}
+          keyExtractor={item => item.id.toString()}
       />
+      </>
+    </>
   )
 }
 
@@ -129,5 +251,12 @@ const styles = StyleSheet.create({
   },
   quantity: {
     color: 'black'
+  },
+  pressButton: {
+    backgroundColor: GlobalStyles.brandPrimary,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5
   }
 })

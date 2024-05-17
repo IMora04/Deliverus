@@ -1,4 +1,4 @@
-import { get, post } from './helpers/ApiRequestsHelper'
+import { get, post, put } from './helpers/ApiRequestsHelper'
 function getAll () {
   return get('orders')
 }
@@ -11,4 +11,8 @@ function create (data) {
   return post('orders', data)
 }
 
-export { getAll, getDetail, create }
+function edit (id) {
+  return put(`orders/${id}`)
+}
+
+export { getAll, getDetail, create, edit }
