@@ -282,7 +282,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           ListEmptyComponent={renderEmptyOrder}
           >
           </FlatList>
-          <TextSemiBold style={{ flex: 1, flexDirection: 'column', marginLeft: 120 }}>Total price: {totalPriceOrder(orderData.products)}€</TextSemiBold>
+          <TextSemiBold style={{ alignSelf: 'center' }}>Total price: {totalPriceOrder(orderData.products)}€</TextSemiBold>
           <View style={{ flex: 1, flexDirection: 'row' }}>
             <Pressable
             style={[styles.pressButton, { width: 35, margin: 1 }]}
