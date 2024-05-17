@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState, useContext } from 'react'
-import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, ScrollView } from 'react-native'
+import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, ScrollView, Dimensions } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { getDetail } from '../../api/RestaurantEndpoints'
 import { create } from '../../api/OrderEndpoints'
@@ -21,6 +21,30 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   const [productsByCategory, setProductsByCategory] = useState([])
   const [showOrder, setShowOrder] = useState(false)
   const [categories, setCategories] = useState(null)
+
+  const windowDimensions = Dimensions.get('window')
+  const screenDimensions = Dimensions.get('screen')
+
+  const [dimensions, setDimensions] = useState({
+    window: windowDimensions,
+    screen: screenDimensions
+  })
+
+  const [numColumns, setNumColumns] = useState(1)
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener(
+      'change',
+      ({ window, screen }) => {
+        setDimensions({ window, screen })
+      }
+    )
+    return () => subscription?.remove()
+  })
+
+  useEffect(() => {
+    setNumColumns(Math.floor(dimensions.window.width / 360))
+  }, [dimensions])
 
   const initialOrder = {
     restaurantId: restaurant.id,
@@ -55,12 +79,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   const renderHeader = () => {
     return (
       <View>
-        <View style={styles.FRHeader}>
-          <TextSemiBold>FR3: Add, edit and remove products to a new order.</TextSemiBold>
-          <TextRegular>A customer can add several products, and several units of a product to a new order. Before confirming, customer can edit and remove products. Once the order is confirmed, it cannot be edited or removed.</TextRegular>
-          <TextSemiBold>FR4: Confirm or dismiss new order.</TextSemiBold>
-          <TextRegular>Customers will be able to confirm or dismiss the order before sending it to the backend.</TextRegular>
-        </View>
         <ImageBackground source={(restaurant?.heroImage) ? { uri: process.env.API_BASE_URL + '/' + restaurant.heroImage, cache: 'force-cache' } : restaurantBackground} style={styles.imageBackground}>
           <View style={styles.restaurantHeaderContainer}>
             <TextSemiBold textStyle={styles.textTitle}>{restaurant.name}</TextSemiBold>
@@ -113,7 +131,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   const renderOrderButtons = ({ item }) => {
     const productInArray = orderData.products.find(p => p.productId === item.id)
     const itemsSelected = productInArray ? productInArray.quantity : 0
-
     return (
       <View style={{ height: 80 }}>
         <View style={{ flex: 1, flexDirection: 'column' }}>
@@ -161,9 +178,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           }}>
             <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
           </Pressable>
-          <View style={{ width: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
-              </View>
         </View>
       </View>
     )
@@ -171,23 +185,25 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   const renderProduct = ({ item }) => {
     return (
-      <ImageCard
-        imageUri={item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : defaultProductImage}
-        title={item.name}
-      >
-        <View style={{ flexDirection: 'row' }}>
-          <View style={{ flex: 1 }}>
-            <TextRegular numberOfLines={2}>{item.description}</TextRegular>
-            <TextSemiBold textStyle={styles.price}>{item.price.toFixed(2)}€</TextSemiBold>
-            {!item.availability &&
-              <TextSemiBold textStyle={styles.availability }>Not available</TextSemiBold>
+      <View style={{ width: 350, marginHorizontal: 5 }}>
+        <ImageCard
+          imageUri={item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : defaultProductImage}
+          title={item.name}
+        >
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 1 }}>
+              <TextRegular numberOfLines={2}>{item.description}</TextRegular>
+              <TextSemiBold textStyle={styles.price}>{item.price.toFixed(2)}€</TextSemiBold>
+              {!item.availability &&
+                <TextSemiBold textStyle={styles.availability }>Not available</TextSemiBold>
+              }
+            </View>
+            { loggedInUser &&
+            renderOrderButtons({ item })
             }
           </View>
-          { loggedInUser &&
-          renderOrderButtons(item)
-          }
-        </View>
-      </ImageCard>
+        </ImageCard>
+      </View>
     )
   }
 
@@ -235,9 +251,10 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
       }
       ListHeaderComponentStyle={{ margin: 20 }}
       ListEmptyComponent={renderEmptyProductsList}
-      data={productsByCategory[item]}
+      data={productsByCategory[item].concat(productsByCategory[item]).concat(productsByCategory[item])}
+      numColumns={numColumns}
       renderItem={renderProduct}
-      keyExtractor={item => item.name}
+      key={numColumns}
       />
     )
   }
