@@ -180,6 +180,14 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     )
   }
 
+  const totalPriceOrder = (products) => {
+    let totPrice = 0
+    for (const i in products) {
+      totPrice += products[i].price * products[i].quantity
+    }
+    return totPrice
+  }
+
   const renderEmptyProductsList = () => {
     return (
       <TextRegular textStyle={styles.emptyList}>
@@ -274,6 +282,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           ListEmptyComponent={renderEmptyOrder}
           >
           </FlatList>
+          <TextSemiBold style={{ flex: 1, flexDirection: 'column', marginLeft: 120 }}>Total price: {totalPriceOrder(orderData.products)}€</TextSemiBold>
           <View style={{ flex: 1, flexDirection: 'row' }}>
             <Pressable
             style={[styles.pressButton, { width: 35, margin: 1 }]}
