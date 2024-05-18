@@ -18,6 +18,17 @@ export default function OrderDetailScreen ({ navigation, route }) {
   const [editing, setEditing] = useState('ready')
   const [editedOrder, setEditedOrder] = useState({})
 
+  const totalPriceOrder = (products) => {
+    let totalPrice = 0
+    for (const i in products) {
+      totalPrice += products[i].price * products[i].quantity
+    }
+    if (totalPrice < 10) {
+      totalPrice += restaurant.shippingCosts
+    }
+    return totalPrice
+  }
+
   useEffect(() => {
     fetchOrderDetail()
   }, [route])
@@ -89,7 +100,8 @@ export default function OrderDetailScreen ({ navigation, route }) {
             <Image style={styles.image} source={restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + restaurant.logo, cache: 'force-cache' } : restaurantBackground} />
               <View style={[{ flexDirection: 'column' }]}>
                 <TextSemiBold textStyle={styles.textTitle}>{restaurant.name}</TextSemiBold>
-                <TextSemiBold textStyle={styles.subtext}>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandSecondaryTap }}>{order.price}€</TextSemiBold></TextSemiBold>
+                <TextSemiBold textStyle={styles.subtext}>Shipping costs: {restaurant.shippingCosts}€ (under 10€)</TextSemiBold>
+                <TextSemiBold textStyle={styles.subtext}>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandSecondaryTap }}>{totalPriceOrder(editedOrder.products)}€</TextSemiBold></TextSemiBold>
               </View>
           </View>
         </ImageBackground>
@@ -216,12 +228,13 @@ export default function OrderDetailScreen ({ navigation, route }) {
             <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
               <View style={{ flex: 1, width: 350 }}>
                 <TextRegular textStyle={{ fontSize: 15 }}>
-                  {item.quantity} {item.name}: {item.price}
+                  {item.quantity} {item.name}: {item.price * item.quantity}€
                 </TextRegular>
               </View>
             </View>
           )}
           />
+          <TextRegular>Total price: {totalPriceOrder(editedOrder.products)}</TextRegular>
           </ConfirmationModal>
         }
         </View>
@@ -273,7 +286,7 @@ const styles = StyleSheet.create({
     color: 'white'
   },
   subtext: {
-    fontSize: 15,
+    fontSize: 13,
     color: 'white'
   },
   quantity: {
