@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, ImageBackground, Image, FlatList, Pressable } from 'react-native'
-import { getDetail, edit } from '../../api/OrderEndpoints'
+import { getDetail, edit, remove } from '../../api/OrderEndpoints'
 import ImageCard from '../../components/ImageCard'
 import * as RestaurantEndpoints from '../../api/RestaurantEndpoints'
 import TextRegular from '../../components/TextRegular'
@@ -11,12 +11,14 @@ import * as GlobalStyles from '../../styles/GlobalStyles'
 import defaultProductImage from '../../../assets/product.jpeg'
 import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 import ConfirmationModal from '../../components/ConfirmationModal'
+import DeleteModal from '../../components/DeleteModal'
 
 export default function OrderDetailScreen ({ navigation, route }) {
   const [order, setOrder] = useState([])
   const [restaurant, setRestaurant] = useState([])
   const [editing, setEditing] = useState('ready')
   const [editedOrder, setEditedOrder] = useState({})
+  const [orderToBeDeleted, setOrderToBeDeleted] = useState(null)
 
   const totalPriceOrder = (products) => {
     let totalPrice = 0
@@ -196,6 +198,13 @@ export default function OrderDetailScreen ({ navigation, route }) {
       {
         order.status === 'pending' &&
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <Pressable
+          onPress={async () => { setOrderToBeDeleted(order) }}
+          style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandPrimary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+            <TextSemiBold textStyle={{ textAlign: 'center' }}>
+              Delete Order
+            </TextSemiBold>
+          </Pressable>
         {
           editing === 'editing' &&
           <Pressable
@@ -245,6 +254,13 @@ export default function OrderDetailScreen ({ navigation, route }) {
           renderItem={editing !== 'ready' ? renderRestaurantProducts : renderProduct}
           keyExtractor={item => item.id.toString()}
       />
+      <DeleteModal
+        isVisible={orderToBeDeleted !== null}
+        onCancel={() => setOrderToBeDeleted(null)}
+        onConfirm={() => [remove(orderToBeDeleted.id),
+          navigation.navigate('OrdersScreen')]
+        }>
+      </DeleteModal>
       </>
     </>
   )

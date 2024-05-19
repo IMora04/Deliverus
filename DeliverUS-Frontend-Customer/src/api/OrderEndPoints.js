@@ -1,4 +1,4 @@
-import { get, post, put } from './helpers/ApiRequestsHelper'
+import { get, post, put, destroy } from './helpers/ApiRequestsHelper'
 function getAll () {
   return get('orders')
 }
@@ -15,4 +15,8 @@ function edit (id, data) {
   return put(`orders/${id}`, data)
 }
 
-export { getAll, getDetail, create, edit }
+function remove (id) {
+  return destroy(`orders/${id}`)
+}
+
+export { getAll, getDetail, create, edit, remove }
