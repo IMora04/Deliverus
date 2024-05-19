@@ -190,7 +190,7 @@ const create = async (req, res) => {
 const update = async function (req, res) {
   const t = await sequelizeSession.transaction()
   try {
-    const order = updatedOrderPricesInTransaction(req, t)
+    const order = await updatedOrderPricesInTransaction(req, t)
     await order.setProducts([], { transaction: t })
     await addProductsToOrderInTransaction(req.body.products, order, t)
     await t.commit()
