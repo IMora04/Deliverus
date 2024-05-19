@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState, useContext } from 'react'
-import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, ScrollView, Dimensions } from 'react-native'
+import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, ScrollView, Dimensions, TextInput } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { getDetail } from '../../api/RestaurantEndpoints'
 import { create } from '../../api/OrderEndpoints'
@@ -22,6 +22,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   const [productsByCategory, setProductsByCategory] = useState([])
   const [showOrder, setShowOrder] = useState(false)
   const [categories, setCategories] = useState(null)
+  const [deliveryAddress, setDeliveryAddress] = useState(loggedInUser?.address)
 
   const windowDimensions = Dimensions.get('window')
   const screenDimensions = Dimensions.get('screen')
@@ -40,8 +41,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   const initialOrder = {
     restaurantId: restaurant.id,
-    products: [],
-    address: loggedInUser?.address
+    products: []
   }
 
   const [orderData, setOrderData] = useState(initialOrder)
@@ -55,6 +55,14 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     )
     return () => subscription?.remove()
   })
+
+  useEffect(() => {
+    setOrderData({
+      restaurantId: orderData.restaurantId,
+      products: orderData.products,
+      address: deliveryAddress
+    })
+  }, [deliveryAddress])
 
   useEffect(() => {
     const windowSizePerCard = dimensions.window.width / 360
@@ -111,15 +119,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               <Pressable
               style={[styles.pressButton, { width: 35, margin: 1 }]}
               onPress={() => {
-                item.quantity = item.quantity + 1
-                const newOrderData = { ...orderData }
-                setOrderData(newOrderData)
-              }}>
-                <MaterialCommunityIcons name='plus' color={'white'} size={15}/>
-              </Pressable>
-              <Pressable
-              style={[styles.pressButton, { width: 35, margin: 1 }]}
-              onPress={() => {
                 if (item.quantity === 1) {
                   orderData.products.splice(orderData.products.indexOf(item), 1)
                 }
@@ -128,6 +127,15 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                 setOrderData(newOrderData)
               }}>
                 <MaterialCommunityIcons name='minus' color={'white'} size={15}/>
+              </Pressable>
+              <Pressable
+              style={[styles.pressButton, { width: 35, margin: 1 }]}
+              onPress={() => {
+                item.quantity = item.quantity + 1
+                const newOrderData = { ...orderData }
+                setOrderData(newOrderData)
+              }}>
+                <MaterialCommunityIcons name='plus' color={'white'} size={15}/>
               </Pressable>
               <View style={{ width: 45, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                 <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
@@ -303,6 +311,17 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
         {
           showOrder && loggedInUser &&
           <View style={styles.cartBox}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15, marginBottom: 5, justifyContent: 'center' }}>
+            <View style={{ width: 75 }}>
+                <TextSemiBold>Enter your address: </TextSemiBold>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 5, borderWidth: 1, borderColor: 'black' }}>
+                <TextInput
+                style={{ margin: 5 }}
+                value={deliveryAddress}
+                onChangeText={setDeliveryAddress}/>
+              </View>
+            </View>
             <FlatList
             style={styles.cartList}
             data = {orderData.products}
@@ -326,6 +345,26 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               </View>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            <View style={{ width: 130, height: 60 }}>
+                <Pressable
+                style={[styles.pressButton, { margin: 10 }]}
+                onPress={() => {
+                  showMessage({
+                    message: 'Order dismissed',
+                    type: 'success',
+                    style: GlobalStyles.flashStyle,
+                    titleStyle: GlobalStyles.flashTextStyle
+                  })
+                  try {
+                    setOrderData(initialOrder)
+                  } catch (error) {
+                    console.log(error)
+                  }
+                  setShowOrder(false)
+                }}>
+                  <TextSemiBold textStyle={{ color: 'white' }}>Dismiss Order</TextSemiBold>
+                </Pressable>
+              </View>
               <View style={{ width: 130, height: 60 }}>
                 <Pressable
                 style={[styles.pressButton, { margin: 10 }]}
@@ -346,27 +385,6 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                   setShowOrder(false)
                 }}>
                   <TextSemiBold textStyle={{ color: 'white' }}>Confirm Order</TextSemiBold>
-                </Pressable>
-              </View>
-
-              <View style={{ width: 130, height: 60 }}>
-                <Pressable
-                style={[styles.pressButton, { margin: 10 }]}
-                onPress={() => {
-                  showMessage({
-                    message: 'Order dismissed',
-                    type: 'success',
-                    style: GlobalStyles.flashStyle,
-                    titleStyle: GlobalStyles.flashTextStyle
-                  })
-                  try {
-                    setOrderData(initialOrder)
-                  } catch (error) {
-                    console.log(error)
-                  }
-                  setShowOrder(false)
-                }}>
-                  <TextSemiBold textStyle={{ color: 'white' }}>Dismiss Order</TextSemiBold>
                 </Pressable>
               </View>
             </View>
@@ -444,7 +462,7 @@ const styles = StyleSheet.create({
     marginTop: 5
   },
   cartList: {
-    maxHeight: 425,
+    maxHeight: 380,
     width: 350,
     padding: 10,
     borderRadius: 15
