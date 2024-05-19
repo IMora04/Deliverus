@@ -128,36 +128,57 @@ const getPrice = async (products) => {
   return priceAcum
 }
 
+const addProductsToOrderInTransaction = async (products, order, trans) => {
+  for (let i = 0; i < products.length; i++) {
+    const orderProductInfo = products[i]
+    const productToAdd = await Product.findByPk(orderProductInfo.productId)
+    await order.addProduct(productToAdd, {
+      through: {
+        productId: orderProductInfo.productId,
+        quantity: orderProductInfo.quantity,
+        unityPrice: productToAdd.price
+      },
+      transaction: trans
+    })
+  }
+  order = await order.reload({
+    include: {
+      model: Product,
+      as: 'products'
+    },
+    transaction: trans
+  })
+}
+
+const initializeOrderInTransaction = async (req, trans) => {
+  const orderPrice = await getPrice(req.body.products)
+  const orderShippingCosts = await getShippingCosts(orderPrice, req.body.restaurantId)
+
+  const newOrder = await Order.build(req.body, { transaction: trans })
+  newOrder.userId = req.user.id
+  newOrder.shippingCosts = orderShippingCosts
+  newOrder.price = orderPrice + orderShippingCosts
+  await newOrder.save({ transaction: trans })
+  return newOrder
+}
+
+const updatedOrderPricesInTransaction = async (req, trans) => {
+  const newOrderPrice = await getPrice(req.body.products)
+  const order = await Order.findByPk(req.params.orderId)
+  const newShippingCosts = await getShippingCosts(newOrderPrice, order.restaurantId)
+
+  await order.update({
+    price: newOrderPrice + newShippingCosts,
+    shippingCosts: newShippingCosts
+  }, { transaction: trans })
+  return order
+}
+
 const create = async (req, res) => {
   const t = await sequelizeSession.transaction()
   try {
-    const orderPrice = await getPrice(req.body.products)
-    const orderShippingCosts = await getShippingCosts(orderPrice, req.body.restaurantId)
-    let newOrder = await Order.build(req.body, { transaction: t })
-    newOrder.userId = req.user.id
-    newOrder.shippingCosts = orderShippingCosts
-    newOrder.price = orderPrice + orderShippingCosts
-    await newOrder.save({ transaction: t })
-    const productsArray = req.body.products
-    for (let i = 0; i < productsArray.length; i++) {
-      const orderProductInfo = productsArray[i]
-      const productToAdd = await Product.findByPk(orderProductInfo.productId)
-      await newOrder.addProduct(productToAdd, {
-        through: {
-          productId: orderProductInfo.productId,
-          quantity: orderProductInfo.quantity,
-          unityPrice: productToAdd.price
-        },
-        transaction: t
-      })
-    }
-    newOrder = await newOrder.reload({
-      include: {
-        model: Product,
-        as: 'products'
-      },
-      transaction: t
-    })
+    const newOrder = await initializeOrderInTransaction(req, t)
+    await addProductsToOrderInTransaction(req.body.products, newOrder, t)
     await t.commit()
     res.json(newOrder)
   } catch (err) {
@@ -169,36 +190,11 @@ const create = async (req, res) => {
 const update = async function (req, res) {
   const t = await sequelizeSession.transaction()
   try {
-    const newOrderPrice = await getPrice(req.body.products)
-    let updatedOrder = await Order.findByPk(req.params.orderId)
-    const newShippingCosts = await getShippingCosts(newOrderPrice, updatedOrder.restaurantId)
-    await updatedOrder.update({
-      price: newOrderPrice + newShippingCosts,
-      shippingCosts: newShippingCosts
-    }, { transaction: t })
-    await updatedOrder.setProducts([], { transaction: t })
-    const productsArray = req.body.products
-    for (let i = 0; i < productsArray.length; i++) {
-      const orderProductInfo = productsArray[i]
-      const productToAdd = await Product.findByPk(orderProductInfo.productId)
-      await updatedOrder.addProduct(productToAdd, {
-        through: {
-          productId: orderProductInfo.productId,
-          quantity: orderProductInfo.quantity,
-          unityPrice: productToAdd.price
-        },
-        transaction: t
-      })
-    }
-    updatedOrder = await updatedOrder.reload({
-      include: {
-        model: Product,
-        as: 'products'
-      },
-      transaction: t
-    })
+    const order = updatedOrderPricesInTransaction(req, t)
+    await order.setProducts([], { transaction: t })
+    await addProductsToOrderInTransaction(req.body.products, order, t)
     await t.commit()
-    res.json(updatedOrder)
+    res.json(order)
   } catch (err) {
     await t.rollback()
     res.status(500).send(err)
