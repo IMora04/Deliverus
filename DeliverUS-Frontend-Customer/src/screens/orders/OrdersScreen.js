@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { StyleSheet, FlatList, ImageBackground, View } from 'react-native'
+import { StyleSheet, FlatList, ImageBackground, View, Pressable } from 'react-native'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
 import { getAll } from '../../api/OrderEndpoints'
@@ -17,6 +17,10 @@ export default function OrdersScreen ({ navigation, route }) {
   const isFocused = useIsFocused()
 
   useEffect(() => {
+    if (!loggedInUser) {
+      setOrders([])
+      return
+    }
     if (!isFocused) {
       return
     }
@@ -82,9 +86,16 @@ export default function OrdersScreen ({ navigation, route }) {
   }
   const renderEmptyOrdersList = () => {
     return (
-      <TextRegular textStyle={styles.emptyList}>
-        No orders were retreived.
-      </TextRegular>
+      <View style={{ margin: 15, flexDirection: 'column', alignItems: 'center' }}>
+        <TextSemiBold textStyle={{ textAlign: 'center', fontSize: 25 }}>
+          No orders were retreived. Did you log in?
+        </TextSemiBold>
+        <Pressable style={{ marginTop: 25, backgroundColor: GlobalStyles.brandPrimary, borderRadius: 15 }}>
+          <TextSemiBold>
+            Make a new order
+          </TextSemiBold>
+        </Pressable>
+      </View>
     )
   }
   return (
@@ -127,6 +138,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: 'rgba(0,0,0,0.5)',
     flexDirection: 'column',
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
