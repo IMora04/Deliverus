@@ -10,7 +10,7 @@ import ImageCard from '../../components/ImageCard'
 import restaurantLogo from '../../../assets/logo.png'
 import productImage from '../../../assets/product.jpeg'
 import { getTopProducts } from '../../api/ProductEndpoints'
-import DeliverusLogo from '../../../assets/DeliverusLogo2.png'
+import deliverusLogo from '../../../assets/deliverusLogo.png'
 
 export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
@@ -120,8 +120,8 @@ export default function RestaurantsScreen ({ navigation, route }) {
   const renderRestaurantsHeader = () => {
     return (
       <View>
-        <ImageBackground source={ DeliverusLogo } style={styles.imageBackground}>
-          <View style={[styles.headerContainer, { height: dimensions.window.width > 700 ? 400 : 200 }]}>
+        <ImageBackground source={ deliverusLogo } style={styles.imageBackground}>
+          <View style={[styles.headerContainer, { height: dimensions.window.width > 700 ? 200 : 100 }]}>
           </View>
         </ImageBackground>
       </View>
