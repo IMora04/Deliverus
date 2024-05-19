@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { StyleSheet, FlatList, View } from 'react-native'
+import { StyleSheet, FlatList, ImageBackground, View } from 'react-native'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
 import { getAll } from '../../api/OrderEndpoints'
@@ -9,6 +9,7 @@ import ImageCard from '../../components/ImageCard'
 import restaurantLogo from '../../../assets/logo.png'
 import { AuthorizationContext } from '../../context/AuthorizationContext'
 import { useIsFocused } from '@react-navigation/native'
+import ordersBackground from '../../../assets/ordersBackground2.png'
 
 export default function OrdersScreen ({ navigation, route }) {
   const { loggedInUser } = useContext(AuthorizationContext)
@@ -70,12 +71,12 @@ export default function OrdersScreen ({ navigation, route }) {
 
   const renderOrdersHeader = () => {
     return (
-      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-        <View style={styles.buttonText}>
-          <TextSemiBold textStyle={[styles.text, { margin: 10 }]}>
-            All your orders
-          </TextSemiBold>
-        </View>
+      <View>
+        <ImageBackground source={ ordersBackground } style={styles.imageBackground}>
+          <View style={styles.headerContainer}>
+            <TextSemiBold textStyle={styles.title}>Orders</TextSemiBold>
+          </View>
+        </ImageBackground>
       </View>
     )
   }
@@ -109,5 +110,23 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '50%',
     backgroundColor: GlobalStyles.brandPrimary
+  },
+  title: {
+    color: 'white',
+    fontSize: 24,
+    margin: 10,
+    padding: 10
+  },
+  imageBackground: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center'
+  },
+  headerContainer: {
+    height: 150,
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    flexDirection: 'column',
+    alignItems: 'center'
   }
 })
