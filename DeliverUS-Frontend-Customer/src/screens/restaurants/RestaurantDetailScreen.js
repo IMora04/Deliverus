@@ -301,7 +301,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     return (
       <>
         {
-          showOrder &&
+          showOrder && loggedInUser &&
           <View style={styles.cartBox}>
             <FlatList
             style={styles.cartList}

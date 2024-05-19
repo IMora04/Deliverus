@@ -231,19 +231,42 @@ export default function OrderDetailScreen ({ navigation, route }) {
           onCancel={() => { setEditing('editing') }}
           onConfirm={() => { setEditing('confirmed') }}
           >
-          <FlatList
-          data={editedOrder.products}
-          renderItem={ ({ item }) => (
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-              <View style={{ flex: 1, width: 350 }}>
-                <TextRegular textStyle={{ fontSize: 15 }}>
-                  {item.quantity} {item.name}: {item.price * item.quantity}€
-                </TextRegular>
-              </View>
+            <View style={{ flexDirection: 'column' }}>
+
+                    <FlatList
+                    style={{ flex: 1 }}
+                    data = {editedOrder.products}
+                    contentContainerStyle={styles.contentContainer}
+                    renderItem={ ({ item }) => (
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
+                      <TextSemiBold>{item.name} : <TextRegular> {item.quantity}{'\t\t'}</TextRegular></TextSemiBold>
+                      <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
+                      </View>
+                    )}
+                    keyExtractor={item => item.productId.toString()}
+                    />
+
+                      <View style={{ flexDirection: 'row' }}>
+                        <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Total price:</TextSemiBold>
+                        <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>{totalPriceOrder(editedOrder.products)}€</TextSemiBold>
+                      </View>
+                      <View style={{ flexDirection: 'row' }}>
+                        <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Shipping:</TextSemiBold>
+                        <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>
+                          {totalPriceOrder(editedOrder.products) < 10
+                            ? restaurant.shippingCosts
+                            : 'FREE!'}
+                      </TextSemiBold>
+                      </View>
+                      <View style={{ flexDirection: 'row' }}>
+                        <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left' }}>Order total:</TextSemiBold>
+                        <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left' }}>
+                          {totalPriceOrder(editedOrder.products) < 10
+                            ? totalPriceOrder(editedOrder.products) + restaurant.shippingCosts
+                            : totalPriceOrder(editedOrder.products)}€
+                        </TextSemiBold>
+                      </View>
             </View>
-          )}
-          />
-          <TextRegular>Total price: {totalPriceOrder(editedOrder.products)}</TextRegular>
           </ConfirmationModal>
         }
         </View>
@@ -314,5 +337,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5
+  },
+  cartProduct: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 200,
+    justifyContent: 'space-between',
+    marginHorizontal: 15,
+    marginVertical: 5
   }
 })
