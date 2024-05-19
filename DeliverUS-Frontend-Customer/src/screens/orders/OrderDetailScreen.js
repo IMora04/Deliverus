@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, ImageBackground, Image, FlatList, Pressable } from 'react-native'
+import { StyleSheet, View, ImageBackground, Image, FlatList, Pressable, Dimensions } from 'react-native'
 import { getDetail, edit, remove } from '../../api/OrderEndpoints'
 import ImageCard from '../../components/ImageCard'
 import * as RestaurantEndpoints from '../../api/RestaurantEndpoints'
@@ -20,6 +20,24 @@ export default function OrderDetailScreen ({ navigation, route }) {
   const [editing, setEditing] = useState('ready')
   const [editedOrder, setEditedOrder] = useState({})
   const [orderToBeDeleted, setOrderToBeDeleted] = useState(null)
+
+  const windowDimensions = Dimensions.get('window')
+  const screenDimensions = Dimensions.get('screen')
+
+  const [dimensions, setDimensions] = useState({
+    window: windowDimensions,
+    screen: screenDimensions
+  })
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener(
+      'change',
+      ({ window, screen }) => {
+        setDimensions({ window, screen })
+      }
+    )
+    return () => subscription?.remove()
+  })
 
   const totalPriceOrder = (products) => {
     let totalPrice = 0
@@ -206,12 +224,12 @@ export default function OrderDetailScreen ({ navigation, route }) {
       <>
       {
         order.status === 'pending' &&
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+        <View style={{ flexDirection: 'row', justifyContent: dimensions.window.width > 450 ? 'flex-end' : 'center' }}>
           {
             editing !== 'editing' &&
             <Pressable
             onPress={async () => { setOrderToBeDeleted(order) }}
-            style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandPrimary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+            style={[styles.orderButton, { backgroundColor: GlobalStyles.brandPrimary, marginTop: dimensions.window.width > 700 ? -60 : 20 }]}>
               <TextSemiBold textStyle={{ textAlign: 'center', color: 'white' }}>
                 Delete Order
               </TextSemiBold>
@@ -222,14 +240,14 @@ export default function OrderDetailScreen ({ navigation, route }) {
             <>
             <Pressable
             onPress={() => { setEditing('ready') }}
-            style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandPrimary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+            style={[styles.orderButton, { backgroundColor: GlobalStyles.brandPrimary, marginTop: dimensions.window.width > 700 ? -60 : 20 }]}>
               <TextSemiBold textStyle={{ textAlign: 'center', color: 'white' }}>
                 Back
               </TextSemiBold>
             </Pressable>
             <Pressable
             onPress={() => { setEditing('confirming') }}
-            style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandBlueTap, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+            style={[styles.orderButton, { backgroundColor: GlobalStyles.brandBlueTap, marginTop: dimensions.window.width > 700 ? -60 : 20 }]}>
               <TextSemiBold textStyle={{ textAlign: 'center', color: 'white' }}>
                 Confirm edition
               </TextSemiBold>
@@ -240,7 +258,7 @@ export default function OrderDetailScreen ({ navigation, route }) {
             editing === 'ready' &&
             <Pressable
             onPress={() => { setEditing('editing') }}
-            style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandBlueTap, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+            style={[styles.orderButton, { backgroundColor: GlobalStyles.brandBlueTap, marginTop: dimensions.window.width > 700 ? -60 : 20 }]}>
               <TextSemiBold textStyle={{ textAlign: 'center', color: 'white' }}>
                 Edit order
               </TextSemiBold>
@@ -368,5 +386,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: 15,
     marginVertical: 5
+  },
+  orderButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    margin: 20,
+    alignItems: 'center',
+    height: 40,
+    width: 150,
+    borderRadius: 15
   }
 })
