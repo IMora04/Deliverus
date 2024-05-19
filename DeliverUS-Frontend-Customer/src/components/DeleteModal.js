@@ -43,13 +43,13 @@ export default function DeleteModal (props) {
           },
           styles.actionButton
         ]}>
-      <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
-        <MaterialCommunityIcons name='delete' color={'white'} size={20}/>
-        <TextRegular textStyle={styles.text}>
-          Confirm delete
-        </TextRegular>
-      </View>
-    </Pressable>
+          <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
+            <MaterialCommunityIcons name='delete' color={'white'} size={20}/>
+            <TextRegular textStyle={styles.text}>
+              Delete
+            </TextRegular>
+          </View>
+        </Pressable>
       </View>
     </View>
   </Modal>
