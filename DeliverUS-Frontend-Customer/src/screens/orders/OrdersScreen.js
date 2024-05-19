@@ -9,7 +9,7 @@ import ImageCard from '../../components/ImageCard'
 import restaurantLogo from '../../../assets/logo.png'
 import { AuthorizationContext } from '../../context/AuthorizationContext'
 import { useIsFocused } from '@react-navigation/native'
-import ordersBackground from '../../../assets/ordersBackground2.png'
+import ordersBackground from '../../../assets/ordersBackground.png'
 
 export default function OrdersScreen ({ navigation, route }) {
   const { loggedInUser } = useContext(AuthorizationContext)
