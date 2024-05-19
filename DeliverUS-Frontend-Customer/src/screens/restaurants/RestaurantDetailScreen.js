@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState, useContext } from 'react'
-import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, ScrollView, Dimensions, TextInput } from 'react-native'
+import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, Dimensions, TextInput } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { getDetail } from '../../api/RestaurantEndpoints'
 import { create } from '../../api/OrderEndpoints'
@@ -335,7 +335,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               <View style={{ width: 120 }}>
                 <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Total price: {totalPriceOrder(orderData.products)}€</TextSemiBold>
                 <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Shipping: {totalPriceOrder(orderData.products) < 10
-                  ? restaurant.shippingCosts
+                  ? restaurant.shippingCosts + '€'
                   : 'FREE!'}
                 </TextSemiBold>
                 <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left' }}>Order total: {totalPriceOrder(orderData.products) < 10
@@ -418,17 +418,14 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   return (
     <View style={{ flex: 1, flexDirection: 'row' }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {
-          renderHeader()
-        }
         <FlatList
+        ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyProductsList}
+        contentContainerStyle={{ flexGrow: 1 }}
         data={categories ? Array.from(categories) : []}
         renderItem={renderOneCategory}
         keyExtractor={item => item}
         />
-      </ScrollView>
       <View>
         {
           renderCart()
