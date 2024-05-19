@@ -12,6 +12,7 @@ import defaultProductImage from '../../../assets/product.jpeg'
 import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 import ConfirmationModal from '../../components/ConfirmationModal'
 import DeleteModal from '../../components/DeleteModal'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 export default function OrderDetailScreen ({ navigation, route }) {
   const [order, setOrder] = useState([])
@@ -25,9 +26,6 @@ export default function OrderDetailScreen ({ navigation, route }) {
     for (const i in products) {
       totalPrice += products[i].price * products[i].quantity
     }
-    if (totalPrice < 10) {
-      totalPrice += restaurant.shippingCosts
-    }
     return totalPrice
   }
 
@@ -37,9 +35,21 @@ export default function OrderDetailScreen ({ navigation, route }) {
 
   useEffect(() => {
     if (editing === 'confirmed') {
-      edit(order.id, editedOrder)
+      if (editedOrder.products.length !== 0) {
+        edit(order.id, editedOrder)
+      } else {
+        showMessage({
+          message: 'You cannot create an empty order.',
+          type: 'warning',
+          style: GlobalStyles.flashStyle,
+          titleStyle: GlobalStyles.flashTextStyle
+        })
+      }
       fetchOrderDetail()
       setEditing('ready')
+    }
+    if (editing === 'ready') {
+      fetchOrderDetail()
     }
   }, [editing])
 
@@ -136,7 +146,6 @@ export default function OrderDetailScreen ({ navigation, route }) {
   const renderOrderButtons = ({ item }) => {
     const productInArray = editedOrder.products.find(p => p.productId === item.id)
     const itemsSelected = productInArray ? productInArray.quantity : 0
-
     return (
       <View style={{ height: 80 }}>
         <View style={{ flex: 1, flexDirection: 'column' }}>
@@ -160,12 +169,12 @@ export default function OrderDetailScreen ({ navigation, route }) {
             const newOrderData = { ...editedOrder }
             setEditedOrder(newOrderData)
           }}>
-            <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>+</TextSemiBold>
+                <MaterialCommunityIcons name='plus' color={'white'} size={15}/>
           </Pressable>
           <View style={{ flex: 1, justifyContent: 'space-evenly', alignItems: 'center ' }}>
-            <TextSemiBold>
+            <TextRegular textStyle={{ fontSize: 15 }}>
               {itemsSelected}
-            </TextSemiBold>
+            </TextRegular>
           </View>
           <Pressable
           style={[styles.pressButton, { height: 30, width: 30 }]}
@@ -182,7 +191,7 @@ export default function OrderDetailScreen ({ navigation, route }) {
             const newOrderData = { ...editedOrder }
             setEditedOrder(newOrderData)
           }}>
-            <TextSemiBold textStyle={{ color: 'white', textAlign: 'center' }}>-</TextSemiBold>
+                <MaterialCommunityIcons name='minus' color={'white'} size={15}/>
           </Pressable>
         </View>
       </View>
@@ -198,80 +207,92 @@ export default function OrderDetailScreen ({ navigation, route }) {
       {
         order.status === 'pending' &&
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-          <Pressable
-          onPress={async () => { setOrderToBeDeleted(order) }}
-          style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandPrimary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
-            <TextSemiBold textStyle={{ textAlign: 'center' }}>
-              Delete Order
-            </TextSemiBold>
-          </Pressable>
-        {
-          editing === 'editing' &&
-          <Pressable
-          onPress={() => { setEditing('confirming') }}
-          style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandSecondary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
-            <TextSemiBold textStyle={{ textAlign: 'center' }}>
-              Confirm edition
-            </TextSemiBold>
-          </Pressable>
-        }
-        {
-          editing === 'ready' &&
-          <Pressable
-          onPress={() => { setEditing('editing') }}
-          style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandSecondary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
-            <TextSemiBold textStyle={{ textAlign: 'center' }}>
-              Edit order
-            </TextSemiBold>
-          </Pressable>
-        }
-        {
-          editing === 'confirming' &&
-          <ConfirmationModal
-          onCancel={() => { setEditing('editing') }}
-          onConfirm={() => { setEditing('confirmed') }}
-          >
-            <View style={{ flexDirection: 'row' }}>
+          {
+            editing !== 'editing' &&
+            <Pressable
+            onPress={async () => { setOrderToBeDeleted(order) }}
+            style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandPrimary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+              <TextSemiBold textStyle={{ textAlign: 'center', color: 'white' }}>
+                Delete Order
+              </TextSemiBold>
+            </Pressable>
+          }
+          {
+            editing === 'editing' &&
+            <>
+            <Pressable
+            onPress={() => { setEditing('ready') }}
+            style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandPrimary, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+              <TextSemiBold textStyle={{ textAlign: 'center', color: 'white' }}>
+                Back
+              </TextSemiBold>
+            </Pressable>
+            <Pressable
+            onPress={() => { setEditing('confirming') }}
+            style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandBlueTap, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+              <TextSemiBold textStyle={{ textAlign: 'center', color: 'white' }}>
+                Confirm edition
+              </TextSemiBold>
+            </Pressable>
+            </>
+          }
+          {
+            editing === 'ready' &&
+            <Pressable
+            onPress={() => { setEditing('editing') }}
+            style={{ flexDirection: 'row', justifyContent: 'center', margin: 20, alignItems: 'center', backgroundColor: GlobalStyles.brandBlueTap, height: 40, marginTop: -60, width: 150, borderRadius: 15 }}>
+              <TextSemiBold textStyle={{ textAlign: 'center', color: 'white' }}>
+                Edit order
+              </TextSemiBold>
+            </Pressable>
+          }
+          {
+            editing === 'confirming' &&
+            <ConfirmationModal
+            onCancel={() => { setEditing('editing') }}
+            onConfirm={() => { setEditing('confirmed') }}
+            >
+              <View style={{ flexDirection: 'row' }}>
 
-                    <FlatList
-                    style={{ flex: 1, margin: 20 }}
-                    data = {editedOrder.products}
-                    contentContainerStyle={styles.contentContainer}
-                    renderItem={ ({ item }) => (
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 }}>
-                      <TextSemiBold>{item.name} : <TextRegular> {item.quantity}{'\t\t'}</TextRegular></TextSemiBold>
-                      <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
-                      </View>
-                    )}
-                    keyExtractor={item => item.productId.toString()}
-                    />
-                      <View style={{ marginHorizontal: 15 }}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3, marginTop: 25 }}>Price:{'\t'}</TextRegular>
-                          <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1, marginTop: 25 }}>
-                            {totalPriceOrder(editedOrder.products)}€
-                            </TextRegular>
+                      <FlatList
+                      style={{ flex: 1, margin: 20 }}
+                      data = {editedOrder.products}
+                      contentContainerStyle={styles.contentContainer}
+                      renderItem={ ({ item }) => (
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 }}>
+                        <TextSemiBold>{item.name} : <TextRegular> {item.quantity}{'\t\t'}</TextRegular></TextSemiBold>
+                        <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
                         </View>
-                        <View style={{ flexDirection: 'row' }}>
-                          <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3 }}>Shipping:{'\t'}</TextRegular>
-                          <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1 }}>
-                            {totalPriceOrder(editedOrder.products) < 10
-                              ? restaurant.shippingCosts + '€'
-                              : 'FREE!'}
-                        </TextRegular>
+                      )}
+                      keyExtractor={item => item.productId.toString()}
+                      />
+                        <View style={{ marginHorizontal: 15 }}>
+                          <View style={{ flexDirection: 'row' }}>
+                            <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3, marginTop: 25 }}>Price:{'\t'}</TextRegular>
+                            <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1, marginTop: 25 }}>
+                              {totalPriceOrder(editedOrder.products)}€
+                              </TextRegular>
+                          </View>
+                          <View style={{ flexDirection: 'row' }}>
+                            <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3 }}>Shipping:{'\t'}</TextRegular>
+                            <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1 }}>
+                              {totalPriceOrder(editedOrder.products) < 10
+                                ? restaurant.shippingCosts + '€'
+                                : 'FREE!'}
+                          </TextRegular>
+                          </View>
+                          <View style={{ flexDirection: 'row' }}>
+                            <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 3, fontSize: 15 }}>Order total:{'\t'}</TextSemiBold>
+                            <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 1, fontSize: 15 }}>
+                              {totalPriceOrder(editedOrder.products) < 10
+                                ? totalPriceOrder(editedOrder.products) + restaurant.shippingCosts
+                                : totalPriceOrder(editedOrder.products)}€
+                            </TextSemiBold>
+                          </View>
                         </View>
-                        <View style={{ flexDirection: 'row' }}>
-                          <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 3, fontSize: 15 }}>Order total:{'\t'}</TextSemiBold>
-                          <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 1, fontSize: 15 }}>
-                            {totalPriceOrder(editedOrder.products) < 10
-                              ? totalPriceOrder(editedOrder.products) + restaurant.shippingCosts
-                              : totalPriceOrder(editedOrder.products)}€
-                          </TextSemiBold>
-                        </View>
-                      </View>
-            </View>
-          </ConfirmationModal>
-        }
+              </View>
+            </ConfirmationModal>
+          }
         </View>
       }
       <FlatList

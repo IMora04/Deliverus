@@ -376,7 +376,16 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                     titleStyle: GlobalStyles.flashTextStyle
                   })
                   try {
-                    create(orderData)
+                    if (orderData.products.length !== 0) {
+                      create(orderData)
+                    } else {
+                      showMessage({
+                        message: 'You cannot create an empty order.',
+                        type: 'warning',
+                        style: GlobalStyles.flashStyle,
+                        titleStyle: GlobalStyles.flashTextStyle
+                      })
+                    }
                   } catch (error) {
                     console.log(error)
                   }
