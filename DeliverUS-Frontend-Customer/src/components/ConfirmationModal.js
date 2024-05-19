@@ -21,8 +21,8 @@ export default function ConfirmationModal (props) {
           style={({ pressed }) => [
             {
               backgroundColor: pressed
-                ? GlobalStyles.brandBlueTap
-                : GlobalStyles.brandBlue
+                ? GlobalStyles.brandPrimary
+                : GlobalStyles.brandPrimaryTap
             },
             styles.actionButton
           ]}>
