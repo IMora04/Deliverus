@@ -86,15 +86,23 @@ export default function OrdersScreen ({ navigation, route }) {
   }
   const renderEmptyOrdersList = () => {
     return (
-      <View style={{ margin: 15, flexDirection: 'column', alignItems: 'center' }}>
-        <TextSemiBold textStyle={{ textAlign: 'center', fontSize: 25 }}>
-          No orders were retreived. Did you log in?
+      <View style={{ margin: 15, flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+        <TextSemiBold textStyle={{ fontSize: 25 }}>
+          No orders were retreived. {!loggedInUser && 'Did you log in?'}
         </TextSemiBold>
-        <Pressable style={{ marginTop: 25, backgroundColor: GlobalStyles.brandPrimary, borderRadius: 15 }}>
-          <TextSemiBold>
-            Make a new order
-          </TextSemiBold>
-        </Pressable>
+        {
+          !loggedInUser &&
+          <Pressable
+          style={{ backgroundColor: GlobalStyles.brandPrimary, borderRadius: 15, width: 100, height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}
+          onPress={() => navigation.navigate('Profile')}
+          >
+            <View>
+              <TextSemiBold textStyle={{ color: 'white' }}>
+                Log in
+              </TextSemiBold>
+            </View>
+          </Pressable>
+        }
       </View>
     )
   }
