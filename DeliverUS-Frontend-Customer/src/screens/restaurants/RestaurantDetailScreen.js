@@ -278,62 +278,55 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     )
   }
 
-  return (
-    <ScrollView>
-      {
-        renderHeader()
-      }
-      {
+  const renderCartBox = () => {
+    return (
+      <>
+        {
         loggedInUser &&
-        <View style={{ flexDirection: 'row', alignSelf: 'flex-end', marginTop: -80 }}>
+        <View style={{ flexDirection: 'row', alignSelf: 'flex-end', marginLeft: -80 }}>
           <Pressable
             style={[styles.pressButton, { width: 60, margin: 10, padding: 5, height: 60, backgroundColor: GlobalStyles.brandSecondary }]}
           onPress={() => {
             setShowOrder(!showOrder)
           }}>
-
             <Image style={styles.shoppingCart} source={shoppingCart} />
-
           </Pressable>
         </View>
-      }
-      <View style={{ flexDirection: 'row' }}>
+        }
+      </>
+    )
+  }
 
-      <FlatList
-      ListEmptyComponent={renderEmptyProductsList}
-      data={categories ? Array.from(categories) : []}
-      renderItem={renderOneCategory}
-      keyExtractor={item => item}
-      />
-
-      {
-        showOrder &&
-        <View style={styles.cartBox}>
-          <FlatList
-          style={styles.cartList}
-          data = {orderData.products}
-          contentContainerStyle={styles.contentContainer}
-          renderItem={renderCartProduct}
-          scrollEnabled={false}
-          keyExtractor={item => item.productId.toString()}
-          ListEmptyComponent={renderEmptyOrder}
-          />
-          <View style={{ flex: 1, alignSelf: 'center' }}>
-            <View style={{ width: 120 }}>
-              <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Total price: {totalPriceOrder(orderData.products)}€</TextSemiBold>
-              <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Shipping: {totalPriceOrder(orderData.products) < 10
-                ? restaurant.shippingCosts
-                : 'FREE!'}
-              </TextSemiBold>
-              <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left' }}>Order total: {totalPriceOrder(orderData.products) < 10
-                ? totalPriceOrder(orderData.products) + restaurant.shippingCosts
-                : totalPriceOrder(orderData.products)}€
-              </TextSemiBold>
+  const renderCartList = () => {
+    return (
+      <>
+        {
+          showOrder &&
+          <View style={styles.cartBox}>
+            <FlatList
+            style={styles.cartList}
+            data = {orderData.products}
+            contentContainerStyle={styles.contentContainer}
+            renderItem={renderCartProduct}
+            scrollEnabled={true}
+            keyExtractor={item => item.productId.toString()}
+            ListEmptyComponent={renderEmptyOrder}
+            />
+            <View style={{ alignSelf: 'center' }}>
+              <View style={{ width: 120 }}>
+                <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Total price: {totalPriceOrder(orderData.products)}€</TextSemiBold>
+                <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Shipping: {totalPriceOrder(orderData.products) < 10
+                  ? restaurant.shippingCosts
+                  : 'FREE!'}
+                </TextSemiBold>
+                <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left' }}>Order total: {totalPriceOrder(orderData.products) < 10
+                  ? totalPriceOrder(orderData.products) + restaurant.shippingCosts
+                  : totalPriceOrder(orderData.products)}€
+                </TextSemiBold>
+              </View>
             </View>
-          </View>
-          <View style={{ height: 60 }}>
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around' }}>
-              <View style={{ width: 130 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+              <View style={{ width: 130, height: 60 }}>
                 <Pressable
                 style={[styles.pressButton, { margin: 10 }]}
                 onPress={() => {
@@ -356,7 +349,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
                 </Pressable>
               </View>
 
-              <View style={{ width: 130 }}>
+              <View style={{ width: 130, height: 60 }}>
                 <Pressable
                 style={[styles.pressButton, { margin: 10 }]}
                 onPress={() => {
@@ -378,11 +371,43 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               </View>
             </View>
           </View>
-        </View>
-      }
+        }
+      </>
+    )
+  }
 
+  const renderCart = () => {
+    return (
+      <View style={{ flexDirection: 'column' }}>
+        {
+          renderCartBox()
+        }
+        {
+          renderCartList()
+        }
       </View>
-   </ScrollView>
+    )
+  }
+
+  return (
+    <View style={{ flex: 1, flexDirection: 'row' }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        {
+          renderHeader()
+        }
+        <FlatList
+        ListEmptyComponent={renderEmptyProductsList}
+        data={categories ? Array.from(categories) : []}
+        renderItem={renderOneCategory}
+        keyExtractor={item => item}
+        />
+      </ScrollView>
+      <View>
+        {
+          renderCart()
+        }
+      </View>
+    </View>
   )
 }
 
@@ -409,16 +434,17 @@ const styles = StyleSheet.create({
   },
   cartBox: {
     flexDirection: 'column',
-    alignSelf: 'flex-start',
-    zIndex: 1,
-    marginLeft: -355,
+    alignSelf: 'flex-end',
     backgroundColor: GlobalStyles.brandSecondary,
     borderColor: 'black',
     borderRadius: 15,
-    marginRight: 5,
+    borderWidth: 1,
+    marginRight: 80,
+    marginLeft: -435,
     marginTop: 5
   },
   cartList: {
+    maxHeight: 425,
     width: 350,
     padding: 10,
     borderRadius: 15

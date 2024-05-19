@@ -44,7 +44,7 @@ export default function ConfirmationModal (props) {
           styles.actionButton
         ]}>
       <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
-        <MaterialCommunityIcons name='safe' color={'white'} size={20}/>
+        <MaterialCommunityIcons name='check' color={'white'} size={20}/>
         <TextRegular textStyle={styles.text}>
           Confirm edition
         </TextRegular>
