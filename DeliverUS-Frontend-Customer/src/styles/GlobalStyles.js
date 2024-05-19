@@ -3,6 +3,7 @@ const brandPrimaryDisabled = `${brandPrimary}a8`
 const brandPrimaryTap = '#AA001A' //  Granate US más oscuro
 const brandSecondary = '#feca1b' // Amarillo US. rgba(254,202,27,255)
 const brandSecondaryTap = '#EAB607' // amarillo US más oscuro
+const brandSecondaryDisabled = `${brandSecondary}a8`
 const brandSuccess = '#95be05' // verde US
 const brandSuccessDisabled = `${brandSuccess}a8`
 const brandSuccessTap = '#95be05' // verde US
@@ -26,4 +27,4 @@ const navigationTheme = {
   }
 }
 
-export { navigationTheme, brandPrimary, brandPrimaryTap, brandSecondary, brandSecondaryTap, brandSuccess, brandSuccessDisabled, brandSuccessTap, brandBackground, brandBlue, brandBlueTap, brandGreen, brandGreenTap, flashStyle, flashTextStyle, brandPrimaryDisabled }
+export { navigationTheme, brandPrimary, brandPrimaryTap, brandSecondary, brandSecondaryTap, brandSecondaryDisabled, brandSuccess, brandSuccessDisabled, brandSuccessTap, brandBackground, brandBlue, brandBlueTap, brandGreen, brandGreenTap, flashStyle, flashTextStyle, brandPrimaryDisabled }
