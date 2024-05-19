@@ -255,18 +255,17 @@ export default function OrderDetailScreen ({ navigation, route }) {
               <View style={{ flexDirection: 'row' }}>
 
                       <FlatList
-                      style={{ flex: 1, margin: 20 }}
                       data = {editedOrder.products}
-                      contentContainerStyle={styles.contentContainer}
+                      contentContainerStyle={{ flex: 1, marginRight: 10, marginTop: 20, width: 150 }}
                       renderItem={ ({ item }) => (
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 }}>
-                        <TextSemiBold>{item.name} : <TextRegular> {item.quantity}{'\t\t'}</TextRegular></TextSemiBold>
+                        <TextSemiBold>{item.name}: <TextRegular> {item.quantity}  </TextRegular></TextSemiBold>
                         <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
                         </View>
                       )}
                       keyExtractor={item => item.productId.toString()}
                       />
-                        <View style={{ marginHorizontal: 15 }}>
+                        <View style={{ }}>
                           <View style={{ flexDirection: 'row' }}>
                             <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3, marginTop: 25 }}>Price:{'\t'}</TextRegular>
                             <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1, marginTop: 25 }}>
