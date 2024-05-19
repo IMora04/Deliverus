@@ -231,40 +231,43 @@ export default function OrderDetailScreen ({ navigation, route }) {
           onCancel={() => { setEditing('editing') }}
           onConfirm={() => { setEditing('confirmed') }}
           >
-            <View style={{ flexDirection: 'column' }}>
+            <View style={{ flexDirection: 'row' }}>
 
                     <FlatList
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, margin: 20 }}
                     data = {editedOrder.products}
                     contentContainerStyle={styles.contentContainer}
                     renderItem={ ({ item }) => (
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 }}>
                       <TextSemiBold>{item.name} : <TextRegular> {item.quantity}{'\t\t'}</TextRegular></TextSemiBold>
                       <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
                       </View>
                     )}
                     keyExtractor={item => item.productId.toString()}
                     />
-
-                      <View style={{ flexDirection: 'row' }}>
-                        <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Total price:</TextSemiBold>
-                        <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>{totalPriceOrder(editedOrder.products)}€</TextSemiBold>
-                      </View>
-                      <View style={{ flexDirection: 'row' }}>
-                        <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>Shipping:</TextSemiBold>
-                        <TextSemiBold textStyle={{ fontSize: 10, marginVertical: 2, textAlign: 'left' }}>
-                          {totalPriceOrder(editedOrder.products) < 10
-                            ? restaurant.shippingCosts
-                            : 'FREE!'}
-                      </TextSemiBold>
-                      </View>
-                      <View style={{ flexDirection: 'row' }}>
-                        <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left' }}>Order total:</TextSemiBold>
-                        <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left' }}>
-                          {totalPriceOrder(editedOrder.products) < 10
-                            ? totalPriceOrder(editedOrder.products) + restaurant.shippingCosts
-                            : totalPriceOrder(editedOrder.products)}€
-                        </TextSemiBold>
+                      <View style={{ marginHorizontal: 15 }}>
+                        <View style={{ flexDirection: 'row' }}>
+                          <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3, marginTop: 25 }}>Price:{'\t'}</TextRegular>
+                          <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1, marginTop: 25 }}>
+                            {totalPriceOrder(editedOrder.products)}€
+                            </TextRegular>
+                        </View>
+                        <View style={{ flexDirection: 'row' }}>
+                          <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3 }}>Shipping:{'\t'}</TextRegular>
+                          <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1 }}>
+                            {totalPriceOrder(editedOrder.products) < 10
+                              ? restaurant.shippingCosts + '€'
+                              : 'FREE!'}
+                        </TextRegular>
+                        </View>
+                        <View style={{ flexDirection: 'row' }}>
+                          <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 3, fontSize: 15 }}>Order total:{'\t'}</TextSemiBold>
+                          <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 1, fontSize: 15 }}>
+                            {totalPriceOrder(editedOrder.products) < 10
+                              ? totalPriceOrder(editedOrder.products) + restaurant.shippingCosts
+                              : totalPriceOrder(editedOrder.products)}€
+                          </TextSemiBold>
+                        </View>
                       </View>
             </View>
           </ConfirmationModal>
