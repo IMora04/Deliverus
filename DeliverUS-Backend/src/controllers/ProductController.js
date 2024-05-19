@@ -56,16 +56,20 @@ const update = async function (req, res) {
   }
 }
 
+const deletionMessage = function (result, req) {
+  let message = ''
+  if (result === 1) {
+    message = 'Sucessfuly deleted product id.' + req.params.productId
+  } else {
+    message = 'Could not delete product.'
+  }
+  return message
+}
+
 const destroy = async function (req, res) {
   try {
     const result = await Product.destroy({ where: { id: req.params.productId } })
-    let message = ''
-    if (result === 1) {
-      message = 'Sucessfuly deleted product id.' + req.params.productId
-    } else {
-      message = 'Could not delete product.'
-    }
-    res.json(message)
+    res.json(deletionMessage(result, req))
   } catch (err) {
     res.status(500).send(err)
   }
