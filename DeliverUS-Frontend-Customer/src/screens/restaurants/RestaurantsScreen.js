@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, FlatList, View, Pressable, ScrollView, Dimensions } from 'react-native'
+import { StyleSheet, FlatList, View, Pressable, ScrollView, Dimensions, ImageBackground } from 'react-native'
 import TextSemiBold from '../../components/TextSemibold'
 import TextRegular from '../../components/TextRegular'
 import * as GlobalStyles from '../../styles/GlobalStyles'
@@ -10,6 +10,7 @@ import ImageCard from '../../components/ImageCard'
 import restaurantLogo from '../../../assets/logo.png'
 import productImage from '../../../assets/product.jpeg'
 import { getTopProducts } from '../../api/ProductEndpoints'
+import DeliverusLogo from '../../../assets/DeliverusLogo2.png'
 
 export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
@@ -108,14 +109,6 @@ export default function RestaurantsScreen ({ navigation, route }) {
     )
   }
 
-  const renderRestaurantHeader = () => {
-    return (
-      <TextSemiBold textStyle={[styles.text, { margin: 20 }]}>
-        Restaurants
-      </TextSemiBold>
-    )
-  }
-
   const renderEmptyProductsList = () => {
     return (
       <TextRegular>
@@ -124,8 +117,24 @@ export default function RestaurantsScreen ({ navigation, route }) {
     )
   }
 
+  const renderRestaurantsHeader = () => {
+    return (
+      <View>
+        <ImageBackground source={ DeliverusLogo } style={styles.imageBackground}>
+          <View style={[styles.headerContainer, { height: dimensions.window.width > 700 ? 400 : 200 }]}>
+          </View>
+        </ImageBackground>
+      </View>
+    )
+  }
+
   return (
   <ScrollView>
+    <View style={{ marginBottom: 25 }}>
+    {
+      renderRestaurantsHeader()
+    }
+    </View>
     <View style={{ flexDirection: 'row' }}>
       <View style={[{ flex: 2 }]}></View>
       <Pressable
@@ -158,7 +167,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
       style={{ marginVertical: 20 }}
       horizontal = {true}
       data = {topProducts}
-      contentContainerStyle={[styles.contentContainer, { flexDirection: dimensions.window.width > 450 ? 'row' : 'column' }]}
+      contentContainerStyle={[styles.contentContainer, { flexDirection: dimensions.window.width > 950 ? 'row' : 'column' }]}
       renderItem={renderProduct}
       scrollEnabled={false}
       keyExtractor={item => item.id.toString()}
@@ -170,7 +179,6 @@ export default function RestaurantsScreen ({ navigation, route }) {
       data = {restaurants}
       renderItem={renderRestaurant}
       keyExtractor={item => item.id.toString()}
-      ListHeaderComponent={renderRestaurantHeader}
       ListEmptyComponent={renderEmptyRestaurantsList}
     />
   </ScrollView>
@@ -209,5 +217,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     padding: 50
+  },
+  imageBackground: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  headerContainer: {
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
