@@ -13,6 +13,7 @@ import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 import ConfirmationModal from '../../components/ConfirmationModal'
 import DeleteModal from '../../components/DeleteModal'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import TextError from '../../components/TextError'
 
 export default function OrderDetailScreen ({ navigation, route }) {
   const [order, setOrder] = useState([])
@@ -20,7 +21,8 @@ export default function OrderDetailScreen ({ navigation, route }) {
   const [editing, setEditing] = useState('ready')
   const [editedOrder, setEditedOrder] = useState({})
   const [orderToBeDeleted, setOrderToBeDeleted] = useState(null)
-  const [deliveryAddress, setDeliveryAddress] = useState(order.address)
+  const [deliveryAddress, setDeliveryAddress] = useState()
+  const [backendErrors, setBackendErrors] = useState()
 
   const windowDimensions = Dimensions.get('window')
   const screenDimensions = Dimensions.get('screen')
@@ -29,6 +31,13 @@ export default function OrderDetailScreen ({ navigation, route }) {
     window: windowDimensions,
     screen: screenDimensions
   })
+
+  useEffect(() => {
+    setEditedOrder({
+      products: editedOrder.products,
+      address: deliveryAddress
+    })
+  }, [deliveryAddress])
 
   useEffect(() => {
     const subscription = Dimensions.addEventListener(
@@ -53,24 +62,36 @@ export default function OrderDetailScreen ({ navigation, route }) {
   }, [route])
 
   useEffect(() => {
-    if (editing === 'confirmed') {
-      if (editedOrder.products.length !== 0) {
-        edit(order.id, editedOrder)
-      } else {
-        showMessage({
-          message: 'You cannot create an empty order.',
-          type: 'warning',
-          style: GlobalStyles.flashStyle,
-          titleStyle: GlobalStyles.flashTextStyle
-        })
-      }
-      fetchOrderDetail()
-      setEditing('ready')
-    }
-    if (editing === 'ready') {
-      fetchOrderDetail()
-    }
+    editOrder()
   }, [editing])
+
+  const editOrder = async () => {
+    setBackendErrors([])
+    try {
+      if (editing === 'confirmed') {
+        if (editedOrder.products.length !== 0) {
+          console.log(editedOrder)
+          await edit(order.id, editedOrder)
+        } else {
+          showMessage({
+            message: 'You cannot create an empty order.',
+            type: 'warning',
+            style: GlobalStyles.flashStyle,
+            titleStyle: GlobalStyles.flashTextStyle
+          })
+        }
+        await fetchOrderDetail()
+        setEditing('ready')
+      }
+      if (editing === 'ready') {
+        await fetchOrderDetail()
+      }
+    } catch (error) {
+      setEditing('ready')
+      setBackendErrors(error.errors)
+      console.log(error)
+    }
+  }
 
   const fetchOrderDetail = async () => {
     try {
@@ -87,6 +108,7 @@ export default function OrderDetailScreen ({ navigation, route }) {
         initialOrder.products.push({ productId: product.id, quantity: product.OrderProducts.quantity, name: product.name, price: product.price })
       }
       setEditedOrder(initialOrder)
+      setDeliveryAddress(fetchedOrder.address)
     } catch (error) {
       showMessage({
         message: `There was an error while retrieving order details (id ${route.params.id}). ${error}`,
@@ -224,11 +246,14 @@ export default function OrderDetailScreen ({ navigation, route }) {
       {
         renderHeader()
       }
+        {backendErrors &&
+        backendErrors.map((error, index) => <TextError key={index}>{error.param}-{error.msg}</TextError>)
+        }
       </View>
     {
       editing === 'editing' &&
-      <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15, marginBottom: 35, justifyContent: 'center', marginLeft: -263 }}>
-            <View style={{ width: 75 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15, marginBottom: 35, justifyContent: 'center', marginLeft: -308 }}>
+            <View style={{ width: 125 }}>
                 <TextSemiBold textStyle={{ color: 'white' }}>Enter your address: </TextSemiBold>
               </View>
               <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 5, borderWidth: 1, borderColor: 'black' }}>
@@ -290,42 +315,42 @@ export default function OrderDetailScreen ({ navigation, route }) {
             onConfirm={() => { setEditing('confirmed') }}
             >
               <View style={{ flexDirection: 'row' }}>
-
-                      <FlatList
-                      data = {editedOrder.products}
-                      contentContainerStyle={{ flex: 1, marginRight: 10, marginTop: 20, width: 150 }}
-                      renderItem={ ({ item }) => (
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 }}>
-                        <TextSemiBold>{item.name}: <TextRegular> {item.quantity}  </TextRegular></TextSemiBold>
-                        <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
-                        </View>
-                      )}
-                      keyExtractor={item => item.productId.toString()}
-                      />
-                        <View style={{ }}>
-                          <View style={{ flexDirection: 'row' }}>
-                            <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3, marginTop: 25 }}>Price:{'\t'}</TextRegular>
-                            <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1, marginTop: 25 }}>
-                              {totalPriceOrder(editedOrder.products)}€
-                              </TextRegular>
-                          </View>
-                          <View style={{ flexDirection: 'row' }}>
-                            <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3 }}>Shipping:{'\t'}</TextRegular>
-                            <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1 }}>
-                              {totalPriceOrder(editedOrder.products) < 10
-                                ? restaurant.shippingCosts + '€'
-                                : 'FREE!'}
-                          </TextRegular>
-                          </View>
-                          <View style={{ flexDirection: 'row' }}>
-                            <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 3, fontSize: 15 }}>Order total:{'\t'}</TextSemiBold>
-                            <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 1, fontSize: 15 }}>
-                              {totalPriceOrder(editedOrder.products) < 10
-                                ? totalPriceOrder(editedOrder.products) + restaurant.shippingCosts
-                                : totalPriceOrder(editedOrder.products)}€
-                            </TextSemiBold>
-                          </View>
-                        </View>
+                <FlatList
+                data = {editedOrder.products}
+                contentContainerStyle={{ flex: 1, marginRight: 10, marginTop: 20, width: 150 }}
+                renderItem={ ({ item }) => (
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 }}>
+                  <TextSemiBold>{item.name}: <TextRegular> {item.quantity}  </TextRegular></TextSemiBold>
+                  <TextSemiBold>{item.quantity * item.price}€ </TextSemiBold>
+                  </View>
+                )}
+                keyExtractor={item => item.productId.toString()}
+                />
+                <TextSemiBold>New delivery address: {deliveryAddress}</TextSemiBold>
+                <View>
+                  <View style={{ flexDirection: 'row' }}>
+                    <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3, marginTop: 25 }}>Price:{'\t'}</TextRegular>
+                    <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1, marginTop: 25 }}>
+                      {totalPriceOrder(editedOrder.products)}€
+                      </TextRegular>
+                  </View>
+                  <View style={{ flexDirection: 'row' }}>
+                    <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3 }}>Shipping:{'\t'}</TextRegular>
+                    <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 1 }}>
+                      {totalPriceOrder(editedOrder.products) < 10
+                        ? restaurant.shippingCosts + '€'
+                        : 'FREE!'}
+                  </TextRegular>
+                  </View>
+                  <View style={{ flexDirection: 'row' }}>
+                    <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 3, fontSize: 15 }}>Order total:{'\t'}</TextSemiBold>
+                    <TextSemiBold textStyle={{ marginVertical: 5, textAlign: 'left', flex: 1, fontSize: 15 }}>
+                      {totalPriceOrder(editedOrder.products) < 10
+                        ? totalPriceOrder(editedOrder.products) + restaurant.shippingCosts
+                        : totalPriceOrder(editedOrder.products)}€
+                    </TextSemiBold>
+                  </View>
+                </View>
               </View>
             </ConfirmationModal>
           }
