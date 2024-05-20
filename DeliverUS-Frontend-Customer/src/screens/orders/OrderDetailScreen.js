@@ -153,6 +153,7 @@ export default function OrderDetailScreen ({ navigation, route }) {
             <Image style={styles.image} source={restaurant.logo ? { uri: process.env.API_BASE_URL + '/' + restaurant.logo, cache: 'force-cache' } : restaurantBackground} />
               <View style={[{ flexDirection: 'column' }]}>
                 <TextSemiBold textStyle={styles.textTitle}>{restaurant.name}</TextSemiBold>
+                <TextSemiBold textStyle={styles.subtext}>Address: {order.address}</TextSemiBold>
                 <TextSemiBold textStyle={styles.subtext}>Shipping costs: {restaurant.shippingCosts}€ (under 10€)</TextSemiBold>
                 <TextSemiBold textStyle={styles.subtext}>Total Price: <TextSemiBold textStyle={{ color: GlobalStyles.brandSecondaryTap }}>{totalPriceOrder(editedOrder.products)}€</TextSemiBold></TextSemiBold>
               </View>
