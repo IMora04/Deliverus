@@ -71,7 +71,7 @@ const create = [
   check('products').custom(checkProductIsAvailable),
   check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
   check('products').custom(checkAllProdSameRest),
-  check('address').exists(),
+  check('address').exists().isString().isLength({ min: 1, max: 255 }).trim(),
   check('userId').not().exists(),
   check('price').not().exists(),
   check('shippingCosts').not().exists()
@@ -84,7 +84,7 @@ const update = [
   check('products.*.quantity').exists().isInt({ min: 1 }).toInt(),
   check('products').custom(checkProductIsAvailable),
   check('products').custom(checkAllProdPreviousRest),
-  check('address').exists()
+  check('address').exists().isString().isLength({ min: 1, max: 255 }).trim()
 ]
 
 export { create, update }
