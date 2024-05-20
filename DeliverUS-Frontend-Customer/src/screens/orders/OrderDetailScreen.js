@@ -325,6 +325,7 @@ export default function OrderDetailScreen ({ navigation, route }) {
             onCancel={() => { setEditing('editing') }}
             onConfirm={() => { setEditing('confirmed') }}
             >
+              <TextSemiBold>New delivery address: {deliveryAddress}</TextSemiBold>
               <View style={{ flexDirection: 'row' }}>
                 <FlatList
                 data = {editedOrder.products}
@@ -337,7 +338,6 @@ export default function OrderDetailScreen ({ navigation, route }) {
                 )}
                 keyExtractor={item => item.productId.toString()}
                 />
-                <TextSemiBold>New delivery address: {deliveryAddress}</TextSemiBold>
                 <View>
                   <View style={{ flexDirection: 'row' }}>
                     <TextRegular textStyle={{ fontSize: 15, marginVertical: 2, textAlign: 'left', flex: 3, marginTop: 25 }}>Price:{'\t'}</TextRegular>
