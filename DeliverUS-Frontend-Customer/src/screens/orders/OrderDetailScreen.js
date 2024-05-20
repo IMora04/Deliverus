@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, ImageBackground, Image, FlatList, Pressable, Dimensions } from 'react-native'
+import { StyleSheet, View, ImageBackground, Image, FlatList, Pressable, Dimensions, TextInput } from 'react-native'
 import { getDetail, edit, remove } from '../../api/OrderEndpoints'
 import ImageCard from '../../components/ImageCard'
 import * as RestaurantEndpoints from '../../api/RestaurantEndpoints'
@@ -20,6 +20,7 @@ export default function OrderDetailScreen ({ navigation, route }) {
   const [editing, setEditing] = useState('ready')
   const [editedOrder, setEditedOrder] = useState({})
   const [orderToBeDeleted, setOrderToBeDeleted] = useState(null)
+  const [deliveryAddress, setDeliveryAddress] = useState(order.address)
 
   const windowDimensions = Dimensions.get('window')
   const screenDimensions = Dimensions.get('screen')
@@ -218,9 +219,27 @@ export default function OrderDetailScreen ({ navigation, route }) {
 
   return (
     <>
+    <View style={{ flexDirection: 'row' }}>
+      <View style= {{ flex: 1 }}>
+      {
+        renderHeader()
+      }
+      </View>
     {
-      renderHeader()
+      editing === 'editing' &&
+      <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15, marginBottom: 35, justifyContent: 'center', marginLeft: -263 }}>
+            <View style={{ width: 75 }}>
+                <TextSemiBold textStyle={{ color: 'white' }}>Enter your address: </TextSemiBold>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 5, borderWidth: 1, borderColor: 'black' }}>
+                <TextInput
+                style={{ margin: 5 }}
+                value={deliveryAddress}
+                onChangeText={setDeliveryAddress}/>
+              </View>
+            </View>
     }
+    </View>
       <>
       {
         order.status === 'pending' &&
