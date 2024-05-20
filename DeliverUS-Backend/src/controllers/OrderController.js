@@ -162,14 +162,15 @@ const initializeOrderInTransaction = async (req, trans) => {
   return newOrder
 }
 
-const updatedOrderPricesInTransaction = async (req, trans) => {
+const updatedOrderInTransaction = async (req, trans) => {
   const newOrderPrice = await getPrice(req.body.products)
   const order = await Order.findByPk(req.params.orderId)
   const newShippingCosts = await getShippingCosts(newOrderPrice, order.restaurantId)
 
   await order.update({
     price: newOrderPrice + newShippingCosts,
-    shippingCosts: newShippingCosts
+    shippingCosts: newShippingCosts,
+    address: req.body.address
   }, { transaction: trans })
   return order
 }
@@ -190,7 +191,7 @@ const create = async (req, res) => {
 const update = async function (req, res) {
   const t = await sequelizeSession.transaction()
   try {
-    const order = await updatedOrderPricesInTransaction(req, t)
+    const order = await updatedOrderInTransaction(req, t)
     await order.setProducts([], { transaction: t })
     await addProductsToOrderInTransaction(req.body.products, order, t)
     await t.commit()
