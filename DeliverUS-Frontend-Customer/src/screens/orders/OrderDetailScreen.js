@@ -66,9 +66,9 @@ export default function OrderDetailScreen ({ navigation, route }) {
   }, [editing])
 
   const editOrder = async () => {
-    setBackendErrors([])
     try {
       if (editing === 'confirmed') {
+        setBackendErrors([])
         if (editedOrder.products.length !== 0) {
           console.log(editedOrder)
           await edit(order.id, editedOrder)
@@ -87,6 +87,19 @@ export default function OrderDetailScreen ({ navigation, route }) {
         await fetchOrderDetail()
       }
     } catch (error) {
+      setBackendErrors(error.errors)
+      setEditing('ready')
+      console.log(error)
+    }
+  }
+
+  const deleteOrder = async () => {
+    try {
+      await remove(orderToBeDeleted.id)
+      navigation.navigate('OrdersScreen')
+      setBackendErrors([])
+    } catch (error) {
+      setOrderToBeDeleted(null)
       setEditing('ready')
       setBackendErrors(error.errors)
       console.log(error)
@@ -246,24 +259,21 @@ export default function OrderDetailScreen ({ navigation, route }) {
       {
         renderHeader()
       }
-        {backendErrors &&
-        backendErrors.map((error, index) => <TextError key={index}>{error.param}-{error.msg}</TextError>)
-        }
       </View>
-    {
-      editing === 'editing' &&
-      <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15, marginBottom: 35, justifyContent: 'center', marginLeft: -308 }}>
-            <View style={{ width: 125 }}>
-                <TextSemiBold textStyle={{ color: 'white' }}>Enter your address: </TextSemiBold>
-              </View>
-              <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 5, borderWidth: 1, borderColor: 'black' }}>
-                <TextInput
-                style={{ margin: 5 }}
-                value={deliveryAddress}
-                onChangeText={setDeliveryAddress}/>
-              </View>
-            </View>
-    }
+      {
+        editing === 'editing' &&
+        <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15, marginBottom: 35, justifyContent: 'center', marginLeft: -308 }}>
+          <View style={{ width: 125 }}>
+              <TextSemiBold textStyle={{ color: 'white' }}>Enter your address: </TextSemiBold>
+          </View>
+          <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 5, borderWidth: 1, borderColor: 'black' }}>
+            <TextInput
+            style={{ margin: 5 }}
+            value={deliveryAddress}
+            onChangeText={setDeliveryAddress}/>
+          </View>
+        </View>
+      }
     </View>
       <>
       {
@@ -356,6 +366,9 @@ export default function OrderDetailScreen ({ navigation, route }) {
           }
         </View>
       }
+      {backendErrors &&
+      backendErrors.map((error, index) => <TextError key={index}>{error.param}-{error.msg}</TextError>)
+      }
       <FlatList
           ListEmptyComponent={renderEmptyProductsList}
           data={editing !== 'ready' ? restaurant.products : order.products}
@@ -365,9 +378,7 @@ export default function OrderDetailScreen ({ navigation, route }) {
       <DeleteModal
         isVisible={orderToBeDeleted !== null}
         onCancel={() => setOrderToBeDeleted(null)}
-        onConfirm={() => [remove(orderToBeDeleted.id),
-          navigation.navigate('OrdersScreen')]
-        }>
+        onConfirm={deleteOrder}>
       </DeleteModal>
       </>
     </>
