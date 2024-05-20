@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState, useContext } from 'react'
-import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, Dimensions, TextInput } from 'react-native'
+import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable, Dimensions, TextInput, ScrollView } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { getDetail } from '../../api/RestaurantEndpoints'
 import { create } from '../../api/OrderEndpoints'
@@ -14,6 +14,7 @@ import shoppingCart from '../../../assets/shoppingCart.png'
 import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 import logo from '../../../assets/logo.png'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import TextError from '../../components/TextError'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const { loggedInUser } = useContext(AuthorizationContext)
@@ -23,6 +24,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   const [showOrder, setShowOrder] = useState(false)
   const [categories, setCategories] = useState(null)
   const [deliveryAddress, setDeliveryAddress] = useState(loggedInUser?.address)
+  const [backendErrors, setBackendErrors] = useState()
 
   const windowDimensions = Dimensions.get('window')
   const screenDimensions = Dimensions.get('screen')
@@ -305,6 +307,34 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     )
   }
 
+  const createOrder = async () => {
+    setBackendErrors([])
+    try {
+      if (orderData.products.length !== 0) {
+        await create(orderData)
+        showMessage({
+          message: 'Order confirmed',
+          type: 'success',
+          style: GlobalStyles.flashStyle,
+          titleStyle: GlobalStyles.flashTextStyle
+        })
+      } else {
+        showMessage({
+          message: 'You cannot create an empty order.',
+          type: 'warning',
+          style: GlobalStyles.flashStyle,
+          titleStyle: GlobalStyles.flashTextStyle
+        })
+      }
+    } catch (error) {
+      setBackendErrors(error.errors)
+      console.log(error)
+    }
+    setConfirmed(confirmed === 0 ? 1 : 0)
+    setOrderData(initialOrder)
+    setShowOrder(false)
+  }
+
   const renderCartList = () => {
     return (
       <>
@@ -368,31 +398,7 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
               <View style={{ width: 130, height: 60 }}>
                 <Pressable
                 style={[styles.pressButton, { margin: 10 }]}
-                onPress={() => {
-                  showMessage({
-                    message: 'Order confirmed',
-                    type: 'success',
-                    style: GlobalStyles.flashStyle,
-                    titleStyle: GlobalStyles.flashTextStyle
-                  })
-                  try {
-                    if (orderData.products.length !== 0) {
-                      create(orderData)
-                    } else {
-                      showMessage({
-                        message: 'You cannot create an empty order.',
-                        type: 'warning',
-                        style: GlobalStyles.flashStyle,
-                        titleStyle: GlobalStyles.flashTextStyle
-                      })
-                    }
-                  } catch (error) {
-                    console.log(error)
-                  }
-                  setConfirmed(confirmed === 0 ? 1 : 0)
-                  setOrderData(initialOrder)
-                  setShowOrder(false)
-                }}>
+                onPress={ createOrder }>
                   <TextSemiBold textStyle={{ color: 'white' }}>Confirm Order</TextSemiBold>
                 </Pressable>
               </View>
@@ -418,14 +424,21 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
 
   return (
     <View style={{ flex: 1, flexDirection: 'row' }}>
+        <ScrollView>
+        {
+        renderHeader()
+        }
+        {backendErrors &&
+        backendErrors.map((error, index) => <TextError key={index}>{error.param}-{error.msg}</TextError>)
+        }
         <FlatList
-        ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyProductsList}
         contentContainerStyle={{ flexGrow: 1 }}
         data={categories ? Array.from(categories) : []}
         renderItem={renderOneCategory}
         keyExtractor={item => item}
         />
+      </ScrollView>
       <View>
         {
           renderCart()
